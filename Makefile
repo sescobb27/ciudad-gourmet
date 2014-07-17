@@ -6,7 +6,7 @@ MODELS_DIR=models
 HANDLERS_DIR=handlers
 DB_DIR=db
 
-all: model handler db
+all: model handler database
 	${GOBUILD}
 
 model:
@@ -15,7 +15,7 @@ model:
 handler:
 	$(MAKE) -C $(HANDLERS_DIR)
 
-db:
+database:
 	$(MAKE) -C $(DB_DIR)
 
 .PHONY: test open install
