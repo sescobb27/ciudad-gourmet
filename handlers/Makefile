@@ -4,3 +4,4 @@ all:
 .PHONY: test install
 
 test:
+	go test
