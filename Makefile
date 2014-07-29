@@ -2,9 +2,9 @@ GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
 GOINSTALL=$(GOCMD) install
-MODELS_DIR=models
-HANDLERS_DIR=handlers
-DB_DIR=db
+MODELS_DIR=src/models
+HANDLERS_DIR=src/handlers
+DB_DIR=src/db
 
 all: model handler database
 	${GOBUILD}
