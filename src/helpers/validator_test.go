@@ -4,8 +4,29 @@ import (
         "testing"
 )
 
-func TestEmailValidator(t *testing.T) {
+func TestEmailValidator_Valid(t *testing.T) {
+        valid_emails := []string{"pepe27@gmail.com", "pep@adu.co",
+                "john@server.department.company.com",
+                "pepepepepe@example.com",
+                "pep.27.pepe8@example.net", "org.org.org@example.org",
+                "dangerimp@mailinator.com", "spam@spamgoes.in"}
+        for _, email := range valid_emails {
+                if !EmailValidator(email) {
+                        t.Fatalf("Email %s should be valid", email)
+                }
+        }
+}
 
+func TestEmailValidator_Invalid(t *testing.T) {
+        valid_emails := []string{"@gmail.com", "@adu.co",
+                "john@server", "pepepepepe@", "pep.27.pepe8",
+                "...@example.org", "@.com", "spam@.in",
+                ".@example", ".@.", "example@.", "example@.com."}
+        for _, email := range valid_emails {
+                if EmailValidator(email) {
+                        t.Fatalf("Email %s should be invalid", email)
+                }
+        }
 }
 
 func TestUserNamesValidator_Valid(t *testing.T) {
@@ -18,7 +39,7 @@ func TestUserNamesValidator_Valid(t *testing.T) {
 
         for _, name := range valid_names {
                 if !UserNamesValidator(name) {
-                        t.Fatalf("%s should be valid", name)
+                        t.Fatalf("User Name %s should be valid", name)
                 }
         }
 }
@@ -28,7 +49,8 @@ func TestUserNamesValidator_Invalid(t *testing.T) {
                 "   ", "Simon1", "1Simon", "_Simon", "Simon_",
                 "_Simon_", "Si", "S", "12345", "@simon", "51m0N",
                 "simon...", "...simon", "...simon...", "!\"#$&",
-                "pepitoperezperez pepitoperezperez pepitoperezperez pepitoperezperez",
+                `pepitoperezperez pepitoperezperez pepitoperezperez
+                pepitoperezperez`,
                 "pepitoperezperez 1234",
                 "pepitoperezperez pepitoperezperez pepitoperezperezperez",
                 "pepitoperezperez p",
@@ -41,7 +63,7 @@ func TestUserNamesValidator_Invalid(t *testing.T) {
 
         for _, name := range invalid_names {
                 if UserNamesValidator(name) {
-                        t.Fatalf("%s should be invalid", name)
+                        t.Fatalf("User Name %s should be invalid", name)
                 }
         }
 }
