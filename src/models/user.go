@@ -1,7 +1,8 @@
 package models
 
 import (
-        "db"
+        . "db"
+        "errors"
         "log"
         "time"
 )
@@ -21,7 +22,7 @@ type User struct {
 }
 
 func (u *User) Create() {
-        db, err := db.StablishConnection()
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
@@ -48,30 +49,62 @@ func (u *User) Create() {
         }
 }
 
-func (u *User) FindByEmail() {
-        db, err := db.StablishConnection()
+func FindByEmail(email *string) (*User, error) {
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
         }
         defer db.Close()
-        // query := `SELECT * FROM users  AS u
-        //     WHERE LOWER(u.email) = LOWER($1) LIMIT 1`
+
+        query := `SELECT id, email, username, name, lastname, password_hash
+            FROM users  AS u
+            WHERE LOWER(u.email) = LOWER($1) LIMIT 1`
+
+        user_row := db.QueryRow(query, email)
+        if user_row == nil {
+                return nil, errors.New("No User With That Email")
+        }
+
+        user := new(User)
+        user_row.Scan(&user.Id,
+                &user.Email,
+                &user.Username,
+                &user.Name,
+                &user.LastName,
+                &user.PasswordHash)
+        return user, nil
 }
 
-func (u *User) FindByUsername() {
-        db, err := db.StablishConnection()
+func FindByUsername(username *string) (*User, error) {
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
         }
         defer db.Close()
-        // query := `SELECT * FROM users AS u
-        //     WHERE LOWER(u.username) = LOWER($1) LIMIT 1`
+
+        query := `SELECT id, email, username, name, lastname, password_hash
+            FROM users AS u
+            WHERE LOWER(u.username) = LOWER($1) LIMIT 1`
+
+        user_row := db.QueryRow(query, username)
+        if user_row == nil {
+                return nil, errors.New("No User With That Username")
+        }
+
+        user := new(User)
+        user_row.Scan(&user.Id,
+                &user.Email,
+                &user.Username,
+                &user.Name,
+                &user.LastName,
+                &user.PasswordHash)
+        return user, nil
 }
 
 func (u *User) FindByProductId() {
-        db, err := db.StablishConnection()
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
