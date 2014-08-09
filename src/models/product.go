@@ -1,8 +1,9 @@
 package models
 
 import (
-        "db"
+        . "db"
         "errors"
+        "helpers"
         "log"
         "time"
 )
@@ -20,7 +21,7 @@ type Product struct {
 }
 
 func (p *Product) Create() {
-        db, err := db.StablishConnection()
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
@@ -48,8 +49,12 @@ func (p *Product) Create() {
 }
 
 //  ======
-func FindByName(name *string) ([]*Product, error) {
-        db, err := db.StablishConnection()
+func FindByName(name string) ([]*Product, error) {
+        if len(name) == 0 || !helpers.ProductNameValidator(name) {
+                return nil, errors.New("Nombre del Producto Invalido")
+        }
+
+        db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
                 panic(err)
@@ -67,7 +72,7 @@ func FindByName(name *string) ([]*Product, error) {
         }
 
         if product_rows == nil {
-                return nil, errors.New("No Products Named " + *name)
+                return nil, errors.New("No Products Named " + name)
         }
 
         products := []*Product{}

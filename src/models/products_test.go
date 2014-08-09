@@ -37,7 +37,7 @@ func rollbackProducts(t *testing.T) {
 func TestFindByName(t *testing.T) {
         seedProducts()
         for _, name := range product_names {
-                products, err := FindByName(&name)
+                products, err := FindByName(name)
                 if err != nil {
                         t.Fatal(err)
                 }

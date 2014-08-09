@@ -3,7 +3,9 @@ package models
 import (
         . "db"
         "errors"
+        "helpers"
         "log"
+        "strings"
         "time"
 )
 
@@ -50,6 +52,11 @@ func (u *User) Create() {
 }
 
 func FindByEmail(email *string) (*User, error) {
+        if email == nil || len(*email) == 0 || !helpers.EmailValidator(*email) {
+                return nil, errors.New("Correo Invalido")
+        }
+        (*email) = strings.ToLower(*email)
+
         db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
@@ -77,6 +84,12 @@ func FindByEmail(email *string) (*User, error) {
 }
 
 func FindByUsername(username *string) (*User, error) {
+        if username == nil || len(*username) == 0 ||
+                !helpers.UniqueNamesValidator(*username) {
+                return nil, errors.New("Correo Invalido")
+        }
+        (*username) = strings.ToLower(*username)
+
         db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
