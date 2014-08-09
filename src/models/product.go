@@ -2,6 +2,7 @@ package models
 
 import (
         "db"
+        "errors"
         "log"
         "time"
 )
@@ -47,10 +48,43 @@ func (p *Product) Create() {
 }
 
 //  ======
-func (p *Product) FindByName() {
-        // query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
-        //     FROM products AS p
-        //     WHERE LOWER(p.name) LIKE %$1% ORDER BY p.rate DESC`
+func FindByName(name *string) ([]*Product, error) {
+        db, err := db.StablishConnection()
+        if err != nil {
+                log.Fatal(err)
+                panic(err)
+        }
+        defer db.Close()
+
+        query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
+            FROM products AS p
+            WHERE LOWER(p.name) LIKE '%' || $1 || '%' ORDER BY p.rate DESC`
+
+        product_rows, err := db.Query(query, name)
+
+        if err != nil {
+                return nil, err
+        }
+
+        if product_rows == nil {
+                return nil, errors.New("No Products Named " + *name)
+        }
+
+        products := []*Product{}
+        for product_rows.Next() {
+                product := new(Product)
+                err = product_rows.Scan(&product.Id,
+                        &product.Name,
+                        &product.Description,
+                        &product.Price,
+                        &product.Image,
+                        &product.Rate)
+                if err != nil {
+                        panic(err)
+                }
+                products = append(products, product)
+        }
+        return products, nil
 }
 
 //  ======
