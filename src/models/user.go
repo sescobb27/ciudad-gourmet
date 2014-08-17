@@ -52,10 +52,15 @@ func (u *User) Create() {
 }
 
 func FindByEmail(email *string) (*User, error) {
-        if email == nil || len(*email) == 0 || !helpers.EmailValidator(*email) {
-                return nil, errors.New("Correo Invalido")
+        err := errors.New("Correo Invalido")
+        if email == nil || len(*email) == 0 {
+                return nil, err
         }
+
         (*email) = strings.ToLower(*email)
+        if !helpers.EmailValidator(*email) {
+                return nil, err
+        }
 
         db, err := StablishConnection()
         if err != nil {
