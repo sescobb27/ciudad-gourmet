@@ -97,6 +97,16 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request) {
 
 func Locations_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
+        locations := models.GetLocations()
+        json_locations, err := json.Marshal(locations)
+
+        if err != nil {
+                panic(err)
+        }
+
+        fmt.Println(string(json_locations))
+
+        res.Write(json_locations)
 }
 
 func Products_Handler(res http.ResponseWriter, req *http.Request) {
