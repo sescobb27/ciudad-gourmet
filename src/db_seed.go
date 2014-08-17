@@ -21,14 +21,15 @@ var (
 
 func insert_Categories() {
         for i, category := range categories {
-                c := &models.Category{int8(i), category, descriptions[i]}
+                c := &models.Category{Name: category,
+                        Description: descriptions[i]}
                 c.Create()
         }
 }
 
 func insert_Locations() {
-        for i, location := range locations {
-                l := &models.Location{int8(i), location}
+        for _, location := range locations {
+                l := &models.Location{Name: location}
                 l.Create()
         }
 }

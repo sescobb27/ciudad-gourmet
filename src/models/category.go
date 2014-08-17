@@ -17,11 +17,10 @@ func (c *Category) Create() {
         }
         defer db.Close()
 
-        query := `INSERT INTO categories(id, name, description)
-      VALUES ($1, $2, $3)`
+        query := `INSERT INTO categories(name, description)
+      VALUES ($1, $2)`
 
         _, err = db.Exec(query,
-                c.Id,
                 c.Name,
                 c.Description)
 
