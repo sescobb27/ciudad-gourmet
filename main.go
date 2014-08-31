@@ -4,8 +4,8 @@ import (
         "encoding/json"
         "flag"
         "fmt"
+        "github.com/sescobb27/ciudad-gourmet/models"
         "io/ioutil"
-        "models"
         "net/http"
         "os"
 )

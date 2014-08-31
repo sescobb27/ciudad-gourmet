@@ -2,7 +2,7 @@ package models
 
 import (
         . "db"
-        "helpers"
+        "github.com/sescobb27/ciudad-gourmet/helpers"
         "testing"
         "time"
 )

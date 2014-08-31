@@ -1,7 +1,7 @@
 package main
 
 import (
-        "models"
+        "github.com/sescobb27/ciudad-gourmet/models"
 )
 
 var (

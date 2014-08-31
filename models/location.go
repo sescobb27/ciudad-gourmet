@@ -1,8 +1,8 @@
 package models
 
 import (
-        . "db"
         "fmt"
+        . "github.com/sescobb27/ciudad-gourmet/db"
 )
 
 type Location struct {

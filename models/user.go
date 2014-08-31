@@ -1,9 +1,9 @@
 package models
 
 import (
-        . "db"
         "errors"
-        "helpers"
+        . "github.com/sescobb27/ciudad-gourmet/db"
+        "github.com/sescobb27/ciudad-gourmet/helpers"
         "log"
         "strings"
         "time"
