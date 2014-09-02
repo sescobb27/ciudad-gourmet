@@ -32,11 +32,10 @@ func (u *User) Create() {
         defer db.Close()
 
         query := `INSERT INTO users(
-            id, created_at, email, lastname, name, password_hash, rate, username)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+            created_at, email, lastname, name, password_hash, rate, username)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
         _, err = db.Exec(query,
-                u.Id,
                 u.CreatedAt,
                 u.Email,
                 u.LastName,
@@ -119,6 +118,40 @@ func FindByUsername(username *string) (*User, error) {
                 &user.LastName,
                 &user.PasswordHash)
         return user, nil
+}
+
+func FindAllUsers() ([]*User, error) {
+        db, err := StablishConnection()
+        if err != nil {
+                log.Fatal(err)
+                panic(err)
+        }
+        defer db.Close()
+
+        query := `SELECT id, email, username, name, lastname, rate FROM users`
+
+        user_rows, err := db.Query(query)
+
+        if err != nil {
+                return nil, err
+        }
+
+        if user_rows == nil {
+                return nil, errors.New("There aren't users")
+        }
+
+        users := []*User{}
+        for user_rows.Next() {
+                user := &User{}
+                user_rows.Scan(&user.Id,
+                        &user.Email,
+                        &user.Username,
+                        &user.Name,
+                        &user.LastName,
+                        &user.Rate)
+                users = append(users, user)
+        }
+        return users, nil
 }
 
 func (u *User) FindByProductId() {
