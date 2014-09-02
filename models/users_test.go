@@ -1,7 +1,7 @@
 package models
 
 import (
-        . "db"
+        . "github.com/sescobb27/ciudad-gourmet/db"
         "github.com/sescobb27/ciudad-gourmet/helpers"
         "testing"
         "time"
@@ -22,7 +22,7 @@ func seedUsers() {
                 now := time.Now()
                 data := []string{passwords[i], now.String()}
                 p := helpers.EncryptPassword(data)
-                u := &User{Id: int64(i),
+                u := &User{
                         CreatedAt:    now,
                         Username:     usernames[i],
                         Email:        emails[i],
@@ -48,8 +48,7 @@ func rollbackUsers(t *testing.T) {
         }
 }
 
-func TestFindByEmail(t *testing.T) {
-        seedUsers()
+var testFindByEmail = func(t *testing.T) {
         for _, email := range emails {
                 u, err := FindByEmail(&email)
                 if err != nil {
@@ -59,11 +58,9 @@ func TestFindByEmail(t *testing.T) {
                         t.Fatalf("User with email %s should exist", email)
                 }
         }
-        rollbackUsers(t)
 }
 
-func TestFindByUsername(t *testing.T) {
-        seedUsers()
+var testFindByUsername = func(t *testing.T) {
         for _, uname := range usernames {
                 u, err := FindByUsername(&uname)
                 if err != nil {
@@ -73,5 +70,26 @@ func TestFindByUsername(t *testing.T) {
                         t.Fatalf("User with username %s should exist", uname)
                 }
         }
+}
+
+var testFindAllUsers = func(t *testing.T) {
+        users, err := FindAllUsers()
+
+        if err != nil {
+                t.Fatal(err)
+        }
+
+        if len(users) != 4 {
+                t.Fatalf("Should be 4 users and were found %d", len(users))
+        }
+}
+
+func TestUserQueries(t *testing.T) {
+        seedUsers()
+
+        testFindByEmail(t)
+        testFindByUsername(t)
+        testFindAllUsers(t)
+
         rollbackUsers(t)
 }
