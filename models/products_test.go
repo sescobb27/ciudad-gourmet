@@ -16,16 +16,16 @@ var (
 
 func seedProducts() {
         seedUsers()
-        for i := 0; i < 4; i++ {
-                u := &User{Id: int64(i)}
-                p := &Product{Id: int64(i),
-                        CreatedAt:   time.Now(),
+        users, _ := FindAllUsers()
+
+        for i, user := range users {
+                p := &Product{CreatedAt: time.Now(),
                         Image:       image,
                         Description: descriptions[i],
                         Name:        product_names[i],
                         Price:       prices[i],
                         Rate:        rates[i],
-                        Chef:        u}
+                        Chef:        user}
                 p.Create()
         }
 }
@@ -34,10 +34,10 @@ func rollbackProducts(t *testing.T) {
         rollbackUsers(t)
 }
 
-func TestFindByName(t *testing.T) {
+func TestFindProductsByName(t *testing.T) {
         seedProducts()
         for _, name := range product_names {
-                products, err := FindByName(name)
+                products, err := FindProductsByName(name)
                 if err != nil {
                         t.Fatal(err)
                 }
