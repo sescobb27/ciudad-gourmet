@@ -1,6 +1,9 @@
 package handlers
 
 import (
+        "encoding/json"
+        "github.com/sescobb27/ciudad-gourmet/models"
+        "io/ioutil"
         // . "github.com/smartystreets/goconvey/convey"
         "github.com/stretchr/testify/assert"
         "net/http"
@@ -16,6 +19,12 @@ func TestGetLocations(t *testing.T) {
         assert.NoError(t, err)
         assert.Equal(t, 200, recorder.Code)
         assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+        locations := []*models.Location{}
+        body, err := ioutil.ReadAll(recorder.Body)
+        assert.NoError(t, err)
+        err = json.Unmarshal(body, &locations)
+        assert.NoError(t, err)
+        assert.NotEmpty(t, locations)
 }
 
 func TestGetCategories(t *testing.T) {
@@ -26,4 +35,10 @@ func TestGetCategories(t *testing.T) {
         assert.NoError(t, err)
         assert.Equal(t, 200, recorder.Code)
         assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+        categories := []*models.Category{}
+        body, err := ioutil.ReadAll(recorder.Body)
+        assert.NoError(t, err)
+        err = json.Unmarshal(body, &categories)
+        assert.NoError(t, err)
+        assert.NotEmpty(t, categories)
 }
