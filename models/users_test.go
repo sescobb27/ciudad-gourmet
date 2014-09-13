@@ -1,7 +1,7 @@
 package models
 
 import (
-        . "github.com/sescobb27/ciudad-gourmet/db"
+        "errors"
         "github.com/sescobb27/ciudad-gourmet/helpers"
         "testing"
         "time"
@@ -17,12 +17,42 @@ var (
                 "S3CUR3P455W0RD!\"#$%&/()="}
 )
 
-func seedUsers() {
+type MockUser User
+
+func Stub_FindUserByEmail(email *string) (*MockUser, error) {
+        mock_users := seedUsers()
+        for _, user := range mock_users {
+                if user.Email == (*email) {
+                        return user, nil
+                }
+        }
+        return nil, errors.New("No User With That Email")
+}
+
+func Stub_FindUserByUsername(username *string) (*MockUser, error) {
+        mock_users := seedUsers()
+        for _, user := range mock_users {
+                if user.Username == (*username) {
+                        return user, nil
+                }
+        }
+        return nil, errors.New("No User With That Username")
+}
+
+func Stub_FindAllUsers() ([]*MockUser, error) {
+        return seedUsers(), nil
+}
+
+func (u *MockUser) Stub_FindUserByProductId() {
+}
+
+func seedUsers() []*MockUser {
+        mock_users := make([]*MockUser, 0, 4)
         for i := 0; i < 4; i++ {
                 now := time.Now()
                 data := []string{passwords[i], now.String()}
                 p := helpers.EncryptPassword(data)
-                u := &User{
+                u := &MockUser{
                         CreatedAt:    now,
                         Username:     usernames[i],
                         Email:        emails[i],
@@ -30,27 +60,14 @@ func seedUsers() {
                         Name:         names[i],
                         PasswordHash: p,
                         Rate:         0.0}
-                u.Create()
+                mock_users = append(mock_users, u)
         }
+        return mock_users
 }
 
-func rollbackUsers(t *testing.T) {
-        db, err := StablishConnection()
-        if err != nil {
-                t.Fatal(err)
-        }
-        defer db.Close()
-
-        _, err = db.Exec("truncate table users restart identity CASCADE")
-
-        if err != nil {
-                t.Fatal("Error truncating table users")
-        }
-}
-
-var testFindByEmail = func(t *testing.T) {
+func TestFindUserByEmail(t *testing.T) {
         for _, email := range emails {
-                u, err := FindByEmail(&email)
+                u, err := Stub_FindUserByEmail(&email)
                 if err != nil {
                         t.Fatal(err)
                 }
@@ -60,9 +77,9 @@ var testFindByEmail = func(t *testing.T) {
         }
 }
 
-var testFindByUsername = func(t *testing.T) {
+func TestFindUserByUsername(t *testing.T) {
         for _, uname := range usernames {
-                u, err := FindByUsername(&uname)
+                u, err := Stub_FindUserByUsername(&uname)
                 if err != nil {
                         t.Fatal(err)
                 }
@@ -72,8 +89,8 @@ var testFindByUsername = func(t *testing.T) {
         }
 }
 
-var testFindAllUsers = func(t *testing.T) {
-        users, err := FindAllUsers()
+func TestFindAllUsers(t *testing.T) {
+        users, err := Stub_FindAllUsers()
 
         if err != nil {
                 t.Fatal(err)
@@ -82,14 +99,4 @@ var testFindAllUsers = func(t *testing.T) {
         if len(users) != 4 {
                 t.Fatalf("Should be 4 users and were found %d", len(users))
         }
-}
-
-func TestUserQueries(t *testing.T) {
-        seedUsers()
-
-        testFindByEmail(t)
-        testFindByUsername(t)
-        testFindAllUsers(t)
-
-        rollbackUsers(t)
 }

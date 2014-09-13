@@ -3,6 +3,7 @@ package models
 import (
         "testing"
         "time"
+        "unsafe"
 )
 
 var (
@@ -14,30 +15,39 @@ var (
         rates           = []float32{1.9, 2.5, 3.2, 4.8}
 )
 
-func seedProducts() {
-        seedUsers()
-        users, _ := FindAllUsers()
+type MockProduct Product
 
+func Stub_FindProductsByName(p_name string) ([]*MockProduct, error) {
+        mock_products := seedProducts()
+        result := make([]*MockProduct, 0, 4)
+        for _, product := range mock_products {
+                if product.Name == p_name {
+                        result = append(result, product)
+                }
+        }
+        return result, nil
+}
+
+func seedProducts() []*MockProduct {
+        seedUsers()
+        users, _ := Stub_FindAllUsers()
+        mock_products := make([]*MockProduct, 0, 4)
         for i, user := range users {
-                p := &Product{CreatedAt: time.Now(),
+                p := &MockProduct{CreatedAt: time.Now(),
                         Image:       image,
                         Description: descriptions[i],
                         Name:        product_names[i],
                         Price:       prices[i],
                         Rate:        rates[i],
-                        Chef:        user}
-                p.Create()
+                        Chef:        (*User)(unsafe.Pointer(&user))}
+                mock_products = append(mock_products, p)
         }
-}
-
-func rollbackProducts(t *testing.T) {
-        rollbackUsers(t)
+        return mock_products
 }
 
 func TestFindProductsByName(t *testing.T) {
-        seedProducts()
         for _, name := range product_names {
-                products, err := FindProductsByName(name)
+                products, err := Stub_FindProductsByName(name)
                 if err != nil {
                         t.Fatal(err)
                 }
@@ -45,5 +55,4 @@ func TestFindProductsByName(t *testing.T) {
                         t.Fatalf("Error: Product %s shoud exist", name)
                 }
         }
-        rollbackProducts(t)
 }
