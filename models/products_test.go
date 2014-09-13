@@ -47,6 +47,7 @@ func seedProducts() []*MockProduct {
 }
 
 func TestFindProductsByName(t *testing.T) {
+        t.Parallel()
         for _, name := range product_names {
                 products, err := Stub_FindProductsByName(name)
                 assert.NoError(t, err)

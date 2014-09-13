@@ -67,6 +67,7 @@ func seedUsers() []*MockUser {
 }
 
 func TestFindUserByEmail(t *testing.T) {
+        t.Parallel()
         for _, email := range emails {
                 u, err := Stub_FindUserByEmail(&email)
                 assert.NoError(t, err)
@@ -76,6 +77,7 @@ func TestFindUserByEmail(t *testing.T) {
 }
 
 func TestFindUserByUsername(t *testing.T) {
+        t.Parallel()
         for _, uname := range usernames {
                 u, err := Stub_FindUserByUsername(&uname)
                 assert.NoError(t, err)
@@ -85,6 +87,7 @@ func TestFindUserByUsername(t *testing.T) {
 }
 
 func TestFindAllUsers(t *testing.T) {
+        t.Parallel()
         users, err := Stub_FindAllUsers()
         assert.NoError(t, err)
         assert.NotEmpty(t, users)
