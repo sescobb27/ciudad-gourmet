@@ -1,6 +1,7 @@
 package models
 
 import (
+        "github.com/stretchr/testify/assert"
         "testing"
         "time"
         "unsafe"
@@ -48,11 +49,7 @@ func seedProducts() []*MockProduct {
 func TestFindProductsByName(t *testing.T) {
         for _, name := range product_names {
                 products, err := Stub_FindProductsByName(name)
-                if err != nil {
-                        t.Fatal(err)
-                }
-                if products == nil || len(products) == 0 {
-                        t.Fatalf("Error: Product %s shoud exist", name)
-                }
+                assert.NoError(t, err)
+                assert.NotEmpty(t, products)
         }
 }

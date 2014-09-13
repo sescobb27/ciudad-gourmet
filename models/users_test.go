@@ -3,6 +3,7 @@ package models
 import (
         "errors"
         "github.com/sescobb27/ciudad-gourmet/helpers"
+        "github.com/stretchr/testify/assert"
         "testing"
         "time"
 )
@@ -68,35 +69,24 @@ func seedUsers() []*MockUser {
 func TestFindUserByEmail(t *testing.T) {
         for _, email := range emails {
                 u, err := Stub_FindUserByEmail(&email)
-                if err != nil {
-                        t.Fatal(err)
-                }
-                if u == nil {
-                        t.Fatalf("User with email %s should exist", email)
-                }
+                assert.NoError(t, err)
+                assert.NotNil(t, u, "User with email "+email+"should exist")
+                assert.Equal(t, email, u.Email)
         }
 }
 
 func TestFindUserByUsername(t *testing.T) {
         for _, uname := range usernames {
                 u, err := Stub_FindUserByUsername(&uname)
-                if err != nil {
-                        t.Fatal(err)
-                }
-                if u == nil {
-                        t.Fatalf("User with username %s should exist", uname)
-                }
+                assert.NoError(t, err)
+                assert.NotNil(t, u, "User with username %s should exist", uname)
+                assert.Equal(t, uname, u.Username)
         }
 }
 
 func TestFindAllUsers(t *testing.T) {
         users, err := Stub_FindAllUsers()
-
-        if err != nil {
-                t.Fatal(err)
-        }
-
-        if len(users) != 4 {
-                t.Fatalf("Should be 4 users and were found %d", len(users))
-        }
+        assert.NoError(t, err)
+        assert.NotEmpty(t, users)
+        assert.Equal(t, 4, len(users))
 }
