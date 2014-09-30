@@ -25,7 +25,7 @@ type User struct {
         Locations    []*Location `json:"locations"`
 }
 
-func (u *User) Create() {
+func (u *User) Create() error {
         db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)
@@ -38,7 +38,7 @@ func (u *User) Create() {
             VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
         _, err = db.Exec(query,
-                u.CreatedAt,
+                u.CreatedAt.Format(time.RFC850),
                 u.Email,
                 u.LastName,
                 u.Name,
@@ -46,10 +46,7 @@ func (u *User) Create() {
                 u.Rate,
                 u.Username)
 
-        if err != nil {
-                log.Fatal(err)
-                panic(err)
-        }
+        return err
 }
 
 func FindByEmail(email *string) (*User, error) {
@@ -79,7 +76,7 @@ func FindByEmail(email *string) (*User, error) {
                 return nil, errors.New("No User With That Email")
         }
 
-        user := new(User)
+        user := &User{}
         user_row.Scan(&user.Id,
                 &user.Email,
                 &user.Username,
@@ -112,7 +109,7 @@ func FindByUsername(username *string) (*User, error) {
                 return nil, errors.New("No User With That Username")
         }
 
-        user := new(User)
+        user := &User{}
         user_row.Scan(&user.Id,
                 &user.Email,
                 &user.Username,
