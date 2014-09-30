@@ -2,7 +2,6 @@ package main
 
 import (
         "flag"
-        "fmt"
         . "github.com/sescobb27/ciudad-gourmet/handlers"
         "net/http"
         "os"
