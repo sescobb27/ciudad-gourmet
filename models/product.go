@@ -10,7 +10,7 @@ import (
 
 type Product struct {
         Id          int64       `json:"id"`
-        CreatedAt   time.Time   `json:"createdat"`
+        CreatedAt   time.Time   `json:"createdat,omitempty"`
         Image       string      `json:"image"`
         Description string      `json:"description"`
         Name        string      `json:"name"`
@@ -19,7 +19,7 @@ type Product struct {
         Errors      []string    `json:"errors"`
         Chef        *User       `json:"chef"`
         Categories  []*Category `json:"categories"`
-        Discounts   []*Discount `json:"discounts"`
+        Discounts   []*Discount `json:"discounts,omitempty"`
 }
 
 func (p *Product) Create() {
