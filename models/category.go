@@ -6,8 +6,9 @@ import (
 )
 
 type Category struct {
-        Id                int8
-        Name, Description string
+        Id          int8
+        Name        string
+        Description string
 }
 
 func (c *Category) Create() {

@@ -10,17 +10,19 @@ import (
 )
 
 type User struct {
-        Id        int64
-        CreatedAt time.Time
-        Username, Email,
-        LastName, Name,
-        PasswordHash string
-        Rate      float32
-        Errors    []string
-        Discounts []*Discount
-        Products  []*Product
-        Purchases []*Purchase
-        Locations []*Location
+        Id           int64       `json:"id,omitempty"`
+        CreatedAt    time.Time   `json:"createdAt,omitempty"`
+        Username     string      `json:"username"`
+        Email        string      `json:"email"`
+        LastName     string      `json:"lastname"`
+        Name         string      `json:"name"`
+        PasswordHash string      `json:"-"`
+        Rate         float32     `json:"rate"`
+        Errors       []string    `json:"errors"`
+        Discounts    []*Discount `json:"discounts"`
+        Products     []*Product  `json:"products"`
+        Purchases    []*Purchase `json:"purchases"`
+        Locations    []*Location `json:"locations"`
 }
 
 func (u *User) Create() {

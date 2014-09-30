@@ -9,15 +9,17 @@ import (
 )
 
 type Product struct {
-        Id                       int64
-        CreatedAt                time.Time
-        Image, Description, Name string
-        Price                    float64
-        Rate                     float32
-        Errors                   []string
-        Chef                     *User
-        Categories               []*Category
-        Discounts                []*Discount
+        Id          int64       `json:"id"`
+        CreatedAt   time.Time   `json:"createdat"`
+        Image       string      `json:"image"`
+        Description string      `json:"description"`
+        Name        string      `json:"name"`
+        Price       float64     `json:"price"`
+        Rate        float32     `json:"rate"`
+        Errors      []string    `json:"errors"`
+        Chef        *User       `json:"chef"`
+        Categories  []*Category `json:"categories"`
+        Discounts   []*Discount `json:"discounts"`
 }
 
 func (p *Product) Create() {
