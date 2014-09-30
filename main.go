@@ -26,6 +26,7 @@ func main() {
 
         server.Handle("/signin", Post(SignIn_Handler))
         server.Handle("/signout", Post(SignOut_Handler))
+        server.Handle("/signup", Post(SignUp_Handler))
         server.Handle("/purchase", Post(Purchase_Handler))
 
         server.Handle("/chefs", Get(Chefs_Handler))
