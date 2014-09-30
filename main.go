@@ -22,7 +22,7 @@ func main() {
         server.Handle("/categories", Get(Categories_Handler))
         server.Handle("/locations", Get(Locations_Handler))
         server.Handle("/products", Get(Products_Handler))
-        server.Handle("/products/find", Get(FindProduct_Handler))
+        server.Handle("/products/find", Get(FindProducts_Handler))
 
         server.Handle("/signin", Post(SignIn_Handler))
         server.Handle("/signout", Post(SignOut_Handler))
@@ -30,7 +30,6 @@ func main() {
         server.Handle("/purchase", Post(Purchase_Handler))
 
         server.Handle("/chefs", Get(Chefs_Handler))
-        server.Handle("/chef/new", Post(NewChef_Handler))
         server.Handle("/chefs/product/add", Post(ChefAddProduct_Handler))
 
         server.Handle("/images/",

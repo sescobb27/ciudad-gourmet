@@ -6,6 +6,7 @@ import (
         "github.com/sescobb27/ciudad-gourmet/models"
         "io/ioutil"
         "net/http"
+        "strconv"
         "time"
 )
 
@@ -34,13 +35,13 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
         lastname := req.Form.Get("lastname")
         name := req.Form.Get("name")
         password := req.Form.Get("password")
-        time := time.Now().Local()
-        dataToEncrypt := []string{time.String(), password}
+        timeNow := time.Now().Local()
+        dataToEncrypt := []string{timeNow.Format(time.RFC850), password}
 
         passwordHash := helpers.EncryptPassword(dataToEncrypt)
 
         user := &models.User{
-                CreatedAt:    time,
+                CreatedAt:    timeNow,
                 Username:     username,
                 Email:        email,
                 LastName:     lastname,
@@ -92,8 +93,58 @@ func Products_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
 }
 
-func FindProduct_Handler(res http.ResponseWriter, req *http.Request) {
+func FindProducts_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
+        err := req.ParseForm()
+        if err != nil {
+                http.Error(res, err.Error(), http.StatusBadRequest)
+                return
+        }
+
+        // the request should be /products/find?find_by={VAR}&{VAR}={ITEM}
+        findBy := req.Form.Get("find_by")
+        if findBy == "" {
+                http.Error(res, "There is no key to find", http.StatusBadRequest)
+                return
+        }
+
+        filter := req.Form.Get(findBy)
+        if filter == "" {
+                http.Error(res, "There is no key to filter", http.StatusBadRequest)
+                return
+        }
+
+        var products []*models.Product
+        switch findBy {
+        case "id":
+                // strconv.ParseInt(s string, base int, bitSize int) (i int64, err error)
+                id, err := strconv.ParseInt(filter, 10, 0)
+                if err != nil {
+                        break
+                }
+                products, err = models.FindProductsById(id)
+        case "location":
+                products, err = models.FindProductsByLocation(filter)
+        case "category":
+                products, err = models.FindProductsByCategory(filter)
+        case "product_name":
+                products, err = models.FindProductsByName(filter)
+        case "username":
+                products, err = models.FindProductsByUserName(filter)
+        }
+
+        if err != nil {
+                http.Error(res, err.Error(), http.StatusNotFound)
+                return
+        }
+
+        products_json, err := json.Marshal(products)
+        if err != nil {
+                http.Error(res, err.Error(), http.StatusInternalServerError)
+                return
+        }
+
+        res.Write(products_json)
 }
 
 func Purchase_Handler(res http.ResponseWriter, req *http.Request) {
