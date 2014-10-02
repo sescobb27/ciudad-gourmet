@@ -1,12 +1,12 @@
 package models
 
 import (
+        "github.com/stretchr/testify/assert"
         "testing"
 )
 
 func TestGetCategories(t *testing.T) {
-        categories := GetCategories()
-        if len(categories) == 0 {
-                t.Fatal("Categories should not be empty")
-        }
+        categoryService := CategoryMock{}
+        categories := categoryService.GetCategories()
+        assert.NotEmpty(t, categories)
 }

@@ -23,14 +23,14 @@ func insert_Categories() {
         for i, category := range categories {
                 c := &models.Category{Name: category,
                         Description: descriptions[i]}
-                c.Create()
+                c.CreateCategory()
         }
 }
 
 func insert_Locations() {
         for _, location := range locations {
                 l := &models.Location{Name: location}
-                l.Create()
+                l.CreateLocation()
         }
 }
 

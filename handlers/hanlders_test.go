@@ -13,14 +13,13 @@ import (
 
 func TestGetLocations(t *testing.T) {
         t.Parallel()
-        locations := []*models.Location{}
-        server := httptest.NewServer(Locations_Handler(locations))
+        locationService := models.LocationMock{}
+        server := httptest.NewServer(Locations_Handler(locationService))
         res, err := http.Get(server.URL)
 
         assert.NoError(t, err)
         assert.Equal(t, 200, res.StatusCode)
         assert.Equal(t, "application/json", res.Header.Get("Content-Type"))
-        // assert.NotEmpty(t, locations)
         body, err := ioutil.ReadAll(res.Body)
         assert.NoError(t, err)
         res_locations := []*models.Location{}
@@ -31,8 +30,8 @@ func TestGetLocations(t *testing.T) {
 
 func TestGetCategories(t *testing.T) {
         t.Parallel()
-        categories := []*models.Category{}
-        server := httptest.NewServer(Categories_Handler(categories))
+        categoryService := models.CategoryMock{}
+        server := httptest.NewServer(Categories_Handler(categoryService))
         res, err := http.Get(server.URL)
         assert.NoError(t, err)
         assert.Equal(t, 200, res.StatusCode)
