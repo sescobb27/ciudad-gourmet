@@ -3,6 +3,7 @@ package main
 import (
         "flag"
         . "github.com/sescobb27/ciudad-gourmet/handlers"
+        "github.com/sescobb27/ciudad-gourmet/models"
         "net/http"
         "os"
 )
@@ -19,8 +20,8 @@ func main() {
         server := http.NewServeMux()
 
         server.Handle("/", Get(Index_Handler))
-        server.Handle("/categories", Get(Categories_Handler))
-        server.Handle("/locations", Get(Locations_Handler))
+        server.Handle("/categories", Get(Categories_Handler([]*models.Category{})))
+        server.Handle("/locations", Get(Locations_Handler([]*models.Location{})))
         server.Handle("/products", Get(Products_Handler))
         server.Handle("/products/find", Get(FindProducts_Handler))
 

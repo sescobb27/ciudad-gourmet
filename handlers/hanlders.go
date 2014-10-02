@@ -65,28 +65,32 @@ func NewChef_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
 }
 
-func Categories_Handler(res http.ResponseWriter, req *http.Request) {
-        res.Header().Set("Content-Type", "application/json")
-        categories := models.GetCategories()
-        json_categories, err := json.Marshal(categories)
+func Categories_Handler(categories []*models.Category) http.HandlerFunc {
+        return func(res http.ResponseWriter, req *http.Request) {
+                res.Header().Set("Content-Type", "application/json")
+                categories = append(categories, models.GetCategories()...)
+                json_categories, err := json.Marshal(categories)
 
-        if err != nil {
-                panic(err)
+                if err != nil {
+                        panic(err)
+                }
+
+                res.Write(json_categories)
         }
-
-        res.Write(json_categories)
 }
 
-func Locations_Handler(res http.ResponseWriter, req *http.Request) {
-        res.Header().Set("Content-Type", "application/json")
-        locations := models.GetLocations()
-        json_locations, err := json.Marshal(locations)
+func Locations_Handler(locations []*models.Location) http.HandlerFunc {
+        return func(res http.ResponseWriter, req *http.Request) {
+                res.Header().Set("Content-Type", "application/json")
+                locations = append(locations, models.GetLocations()...)
+                json_locations, err := json.Marshal(locations)
 
-        if err != nil {
-                panic(err)
+                if err != nil {
+                        panic(err)
+                }
+
+                res.Write(json_locations)
         }
-
-        res.Write(json_locations)
 }
 
 func Products_Handler(res http.ResponseWriter, req *http.Request) {
