@@ -1,22 +1,16 @@
 package models
 
 import (
-        "fmt"
         . "github.com/sescobb27/ciudad-gourmet/db"
 )
 
-type CategoryService interface {
-        CreateCategory() (bool, error)
-        GetCategories() []*Category
-}
-
 type Category struct {
-        Id          int8
-        Name        string
-        Description string
+        Id          int8    `json:"id"`
+        Name        string  `json:"name"`
+        Description string  `json:"description"`
 }
 
-func (c Category) CreateCategory() (bool, error) {
+func (c *Category) Create() (bool, error) {
         db, err := StablishConnection()
         if err != nil {
                 return false, err
@@ -36,7 +30,7 @@ func (c Category) CreateCategory() (bool, error) {
         return true, nil
 }
 
-func (c Category) GetCategories() []*Category {
+func GetCategories() []*Category {
         db, err := StablishConnection()
         if err != nil {
                 panic(err)
@@ -61,25 +55,4 @@ func (c Category) GetCategories() []*Category {
         }
 
         return categories
-}
-
-func (c *Category) MarshalJSON() ([]byte, error) {
-        str := fmt.Sprintf(`{"name": "%s", "description": "%s"}`, c.Name, c.Description)
-        return []byte(str), nil
-}
-
-// ============ MOCKS and STUBS ============
-type CategoryMock struct{}
-
-func (l CategoryMock) CreateCategory() (bool, error) {
-        return true, nil
-}
-
-func (l CategoryMock) GetCategories() []*Category {
-        mock_category := &Category{
-                Id:          1,
-                Name:        "Category Mock",
-                Description: "This is a Category Mock",
-        }
-        return []*Category{mock_category}
 }

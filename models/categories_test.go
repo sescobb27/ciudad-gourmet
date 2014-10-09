@@ -6,7 +6,6 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-        categoryService := CategoryMock{}
-        categories := categoryService.GetCategories()
+        categories := GetCategories()
         assert.NotEmpty(t, categories)
 }

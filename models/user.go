@@ -49,7 +49,7 @@ func (u *User) Create() error {
         return err
 }
 
-func FindByEmail(email *string) (*User, error) {
+func FindUserByEmail(email *string) (*User, error) {
         err := errors.New("Correo Invalido")
         if email == nil || len(*email) == 0 {
                 return nil, err
@@ -86,10 +86,10 @@ func FindByEmail(email *string) (*User, error) {
         return user, nil
 }
 
-func FindByUsername(username *string) (*User, error) {
+func FindUserByUsername(username *string) (*User, error) {
         if username == nil || len(*username) == 0 ||
                 !helpers.UniqueNamesValidator(*username) {
-                return nil, errors.New("Correo Invalido")
+                return nil, errors.New("Nombre de Usuario Invalido")
         }
         (*username) = strings.ToLower(*username)
 
@@ -135,11 +135,11 @@ func FindAllUsers() ([]*User, error) {
                 return nil, err
         }
 
+        users := []*User{}
         if user_rows == nil {
-                return nil, errors.New("There aren't users")
+                return users, nil
         }
 
-        users := []*User{}
         for user_rows.Next() {
                 user := &User{}
                 user_rows.Scan(&user.Id,
@@ -153,7 +153,7 @@ func FindAllUsers() ([]*User, error) {
         return users, nil
 }
 
-func (u *User) FindByProductId() {
+func (u *User) FindUserByProductId() {
         db, err := StablishConnection()
         if err != nil {
                 log.Fatal(err)

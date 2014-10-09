@@ -1,21 +1,15 @@
 package models
 
 import (
-        "fmt"
         . "github.com/sescobb27/ciudad-gourmet/db"
 )
 
-type LocationService interface {
-        CreateLocation() (bool, error)
-        GetLocations() []*Location
-}
-
 type Location struct {
-        Id      int8
-        Name    string
+        Id      int     `json:"id"`
+        Name    string  `json:"name"`
 }
 
-func (l Location) CreateLocation() (bool, error) {
+func (l *Location) Create() (bool, error) {
         db, err := StablishConnection()
         if err != nil {
                 return false, err
@@ -31,7 +25,7 @@ func (l Location) CreateLocation() (bool, error) {
         return true, nil
 }
 
-func (l Location) GetLocations() []*Location {
+func GetLocations() []*Location {
         db, err := StablishConnection()
         if err != nil {
                 panic(err)
@@ -57,24 +51,4 @@ func (l Location) GetLocations() []*Location {
         }
 
         return locations
-}
-
-func (l *Location) MarshalJSON() ([]byte, error) {
-        str := fmt.Sprintf(`{"name": "%s"}`, l.Name)
-        return []byte(str), nil
-}
-
-// ============ MOCKS and STUBS ============
-type LocationMock struct{}
-
-func (l LocationMock) CreateLocation() (bool, error) {
-        return true, nil
-}
-
-func (l LocationMock) GetLocations() []*Location {
-        mock_location := &Location{
-                Id:     1,
-                Name:   "Location Mock",
-        }
-        return []*Location{mock_location}
 }

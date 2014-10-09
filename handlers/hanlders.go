@@ -65,34 +65,30 @@ func NewChef_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
 }
 
-func Categories_Handler(categorieService models.CategoryService) http.HandlerFunc {
-        return func(res http.ResponseWriter, req *http.Request) {
-                res.Header().Set("Content-Type", "application/json")
-                categories := []*models.Category{}
-                categories = append(categories, categorieService.GetCategories()...)
-                json_categories, err := json.Marshal(categories)
+func Categories_Handler(res http.ResponseWriter, req *http.Request) {
+        res.Header().Set("Content-Type", "application/json")
+        categories := []*models.Category{}
+        categories = append(categories, models.GetCategories()...)
+        json_categories, err := json.Marshal(categories)
 
-                if err != nil {
-                        panic(err)
-                }
-
-                res.Write(json_categories)
+        if err != nil {
+                panic(err)
         }
+
+        res.Write(json_categories)
 }
 
-func Locations_Handler(locationService models.LocationService) http.HandlerFunc {
-        return func(res http.ResponseWriter, req *http.Request) {
-                res.Header().Set("Content-Type", "application/json")
-                locations := []*models.Location{}
-                locations = append(locations, locationService.GetLocations()...)
-                json_locations, err := json.Marshal(locations)
+func Locations_Handler(res http.ResponseWriter, req *http.Request) {
+        res.Header().Set("Content-Type", "application/json")
+        locations := []*models.Location{}
+        locations = append(locations, models.GetLocations()...)
+        json_locations, err := json.Marshal(locations)
 
-                if err != nil {
-                        panic(err)
-                }
-
-                res.Write(json_locations)
+        if err != nil {
+                panic(err)
         }
+
+        res.Write(json_locations)
 }
 
 func Products_Handler(res http.ResponseWriter, req *http.Request) {

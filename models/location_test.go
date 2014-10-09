@@ -6,7 +6,6 @@ import (
 )
 
 func TestGetLocations(t *testing.T) {
-        locationService := LocationMock{}
-        locations := locationService.GetLocations()
+        locations := GetLocations()
         assert.NotEmpty(t, locations)
 }
