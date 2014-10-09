@@ -99,13 +99,13 @@ func NewLogFactory(path string) (*LogFactory, error) {
                 ErrorLog:   NewErrorLog(errorFile),
                 path:       path,
         }
-        go (*logFactory).listen()
+        go logFactory.listen()
         cronJob := cron.New()
         cronJob.AddJob("@daily", logFactory)
         return logFactory, nil
 }
 
-func (l LogFactory) listen() {
+func (l *LogFactory) listen() {
         var infoMsg, warningMsg, errorMsg []byte
         for {
                 select {

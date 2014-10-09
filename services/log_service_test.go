@@ -66,21 +66,20 @@ func TestNewLogFactory(t *testing.T) {
                 msg = "hello"
         )
 
-        buffer := make([]byte, len(msg))
         // testing if the info log file is not empty after a send msg
         // then if PASS, delete the file
         logFactory.InfoLog.InfoChan <- []byte(msg)
-        assertFileIsNotEmpty(t, infoFilePath, buffer)
+        assertFileIsNotEmpty(t, infoFilePath)
 
         // testing if the error log file is not empty after a send msg
         // then if PASS, delete the file
         logFactory.ErrorLog.ErrorChan <- []byte(msg)
-        assertFileIsNotEmpty(t, errorFilePath, buffer)
+        assertFileIsNotEmpty(t, errorFilePath)
 
         // testing if the warning log file is not empty after a send msg
         // then if PASS, delete the file
         logFactory.WarningLog.WarningChan <- []byte(msg)
-        assertFileIsNotEmpty(t, warningFilePath, buffer)
+        assertFileIsNotEmpty(t, warningFilePath)
 }
 
 func TestCronJobRun(t *testing.T) {
@@ -106,10 +105,9 @@ func TestCronJobRun(t *testing.T) {
         logFactory.ErrorLog.ErrorChan <- []byte(msg)
         logFactory.WarningLog.WarningChan <- []byte(msg)
 
-        buffer := make([]byte, len(msg))
-        assertFileIsNotEmpty(t, infoFilePath, buffer)
-        assertFileIsNotEmpty(t, errorFilePath, buffer)
-        assertFileIsNotEmpty(t, warningFilePath, buffer)
+        assertFileIsNotEmpty(t, infoFilePath)
+        assertFileIsNotEmpty(t, errorFilePath)
+        assertFileIsNotEmpty(t, warningFilePath)
 }
 
 func assertFileExist(t *testing.T, path string) {
@@ -119,11 +117,12 @@ func assertFileExist(t *testing.T, path string) {
         assert.NoError(t, err)
 }
 
-func assertFileIsNotEmpty(t *testing.T, path string, buffer []byte) {
+func assertFileIsNotEmpty(t *testing.T, path string) {
         var (
                 file    *os.File
                 err     error
         )
+        buffer := make([]byte, 1024)
         file, err = os.Open(path)
         file.Read(buffer)
         assert.NotEmpty(t, buffer)

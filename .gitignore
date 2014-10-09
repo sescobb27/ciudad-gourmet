@@ -21,3 +21,6 @@ _testmain.go
 
 *.exe
 *.test
+
+ciudad-gourmet.log*
+ciudad-gourmet

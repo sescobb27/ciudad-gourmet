@@ -37,14 +37,16 @@ func (u *User) Create() error {
             created_at, email, lastname, name, password_hash, rate, username)
             VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-        _, err = db.Exec(query,
+        _, err = db.Exec(
+                query,
                 u.CreatedAt.Format(time.RFC850),
                 u.Email,
                 u.LastName,
                 u.Name,
                 u.PasswordHash,
                 u.Rate,
-                u.Username)
+                u.Username,
+        )
 
         return err
 }
@@ -77,12 +79,14 @@ func FindUserByEmail(email *string) (*User, error) {
         }
 
         user := &User{}
-        user_row.Scan(&user.Id,
+        user_row.Scan(
+                &user.Id,
                 &user.Email,
                 &user.Username,
                 &user.Name,
                 &user.LastName,
-                &user.PasswordHash)
+                &user.PasswordHash,
+        )
         return user, nil
 }
 
@@ -110,12 +114,14 @@ func FindUserByUsername(username *string) (*User, error) {
         }
 
         user := &User{}
-        user_row.Scan(&user.Id,
+        user_row.Scan(
+                &user.Id,
                 &user.Email,
                 &user.Username,
                 &user.Name,
                 &user.LastName,
-                &user.PasswordHash)
+                &user.PasswordHash,
+        )
         return user, nil
 }
 
@@ -142,12 +148,14 @@ func FindAllUsers() ([]*User, error) {
 
         for user_rows.Next() {
                 user := &User{}
-                user_rows.Scan(&user.Id,
+                user_rows.Scan(
+                        &user.Id,
                         &user.Email,
                         &user.Username,
                         &user.Name,
                         &user.LastName,
-                        &user.Rate)
+                        &user.Rate,
+                )
                 users = append(users, user)
         }
         return users, nil

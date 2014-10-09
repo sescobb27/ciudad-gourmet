@@ -2,13 +2,27 @@ package handlers
 
 import (
         "encoding/json"
+        "fmt"
         "github.com/sescobb27/ciudad-gourmet/helpers"
         "github.com/sescobb27/ciudad-gourmet/models"
+        "github.com/sescobb27/ciudad-gourmet/services"
         "io/ioutil"
         "net/http"
         "strconv"
         "time"
 )
+
+var (
+        logFactory *services.LogFactory
+)
+
+func init() {
+        var err error
+        logFactory, err = services.NewLogFactory("./ciudad-gourmet.log")
+        if err != nil {
+                panic(err)
+        }
+}
 
 func Index_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "text/html")
@@ -19,14 +33,21 @@ func Index_Handler(res http.ResponseWriter, req *http.Request) {
         res.Write(file)
 }
 
+func formatReq(req *http.Request) string {
+        fmt.Printf("%v", (*req))
+        return fmt.Sprintf("%v", (*req))
+}
+
 func SignIn_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
 }
 
 func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
         err := req.ParseForm()
+        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
         if err != nil {
                 http.Error(res, err.Error(), http.StatusBadRequest)
+                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
                 return
         }
 
@@ -54,6 +75,7 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
 
         if err != nil {
                 http.Error(res, err.Error(), http.StatusBadRequest)
+                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
         }
 }
 
@@ -66,12 +88,15 @@ func NewChef_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func Categories_Handler(res http.ResponseWriter, req *http.Request) {
+        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
+
         res.Header().Set("Content-Type", "application/json")
         categories := []*models.Category{}
         categories = append(categories, models.GetCategories()...)
         json_categories, err := json.Marshal(categories)
 
         if err != nil {
+                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
                 panic(err)
         }
 
@@ -79,12 +104,15 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func Locations_Handler(res http.ResponseWriter, req *http.Request) {
+        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
+
         res.Header().Set("Content-Type", "application/json")
         locations := []*models.Location{}
         locations = append(locations, models.GetLocations()...)
         json_locations, err := json.Marshal(locations)
 
         if err != nil {
+                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
                 panic(err)
         }
 

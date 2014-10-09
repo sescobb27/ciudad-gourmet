@@ -34,14 +34,16 @@ func (p *Product) Create() {
             created_at, description, image, name, price, rate, chef_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-        _, err = db.Exec(query,
+        _, err = db.Exec(
+                query,
                 p.CreatedAt,
                 p.Description,
                 p.Image,
                 p.Name,
                 p.Price,
                 p.Rate,
-                p.Chef.Id)
+                p.Chef.Id,
+        )
 
         if err != nil {
                 log.Fatal(err)
@@ -79,12 +81,14 @@ func FindProductsByName(name string) ([]*Product, error) {
         products := []*Product{}
         for product_rows.Next() {
                 product := new(Product)
-                err = product_rows.Scan(&product.Id,
+                err = product_rows.Scan(
+                        &product.Id,
                         &product.Name,
                         &product.Description,
                         &product.Price,
                         &product.Image,
-                        &product.Rate)
+                        &product.Rate,
+                )
                 if err != nil {
                         panic(err)
                 }
@@ -122,12 +126,14 @@ func FindProductsByCategory(category string) ([]*Product, error) {
 
         for product_rows.Next() {
                 product := new(Product)
-                err = product_rows.Scan(&product.Id,
+                err = product_rows.Scan(
+                        &product.Id,
                         &product.Name,
                         &product.Description,
                         &product.Price,
                         &product.Image,
-                        &product.Rate)
+                        &product.Rate,
+                )
                 if err != nil {
                         panic(err)
                 }

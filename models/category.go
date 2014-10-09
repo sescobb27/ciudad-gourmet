@@ -20,9 +20,11 @@ func (c *Category) Create() (bool, error) {
         query := `INSERT INTO categories(name, description)
       VALUES ($1, $2)`
 
-        _, err = db.Exec(query,
+        _, err = db.Exec(
+                query,
                 c.Name,
-                c.Description)
+                c.Description,
+        )
 
         if err != nil {
                 return false, err
