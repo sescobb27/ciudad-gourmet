@@ -34,7 +34,6 @@ func Index_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func formatReq(req *http.Request) string {
-        fmt.Printf("%v", (*req))
         return fmt.Sprintf("%v", (*req))
 }
 

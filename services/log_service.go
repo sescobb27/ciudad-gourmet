@@ -48,6 +48,11 @@ func createFileIfNotExist(path string) (*os.File, error) {
                 } else {
                         return nil, err
                 }
+        } else {
+                file, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0660)
+                if err != nil {
+                        return nil, err
+                }
         }
         return file, nil
 }
