@@ -6,9 +6,19 @@ import (
 )
 
 var (
-        u_usernames = []string{"sescob", "easierra", "jknore", "jcmejia"}
-        u_emails    = []string{"sescob@gmail.com", "easierra@gmail.com",
-                "jknore@gmail.com", "jcmejia@gmail.com"}
+        u_usernames = []string{
+                "sescob",
+                "easierra",
+                "jknore",
+                "jcmejia",
+        }
+        u_emails = []string{
+                "sescob@gmail.com",
+                "easierra@gmail.com",
+
+                "jknore@gmail.com",
+                "jcmejia@gmail.com",
+        }
 )
 
 func TestFindUserByEmail(t *testing.T) {

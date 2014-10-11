@@ -6,7 +6,12 @@ import (
 )
 
 var (
-        p_names = []string{"plato1", "plato2", "plato3", "plato4"}
+        p_names = []string{
+                "plato1",
+                "plato2",
+                "plato3",
+                "plato4",
+        }
 )
 
 func TestFindProductsByName(t *testing.T) {
