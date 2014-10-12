@@ -1,6 +1,7 @@
 package main
 
 import (
+        "github.com/sescobb27/ciudad-gourmet/db"
         "github.com/sescobb27/ciudad-gourmet/helpers"
         "github.com/sescobb27/ciudad-gourmet/models"
         "time"
@@ -216,16 +217,45 @@ func insert_Products(users []*models.User, locations []*models.Location, categor
 //         }
 // }
 
-// func restore() {
-//         db, err := stablishConnection()
-//         assertNoError(err)
-//         defer db.Close()
-//         tables := []string{"users", "categories", "locations", "products"}
-//         for _, t := range tables {
-//                 _, err = db.Exec("truncate table " + t + " restart identity CASCADE")
-//                 assertNoError(err)
-//         }
-// }
+func Restore() {
+        database, err := db.StablishConnection()
+        if err != nil {
+                panic(err)
+        }
+
+        tables := "users, categories, locations, products"
+        _, err = database.Exec("TRUNCATE TABLE " + tables + " RESTART IDENTITY CASCADE")
+
+        if err != nil {
+                panic(err)
+        }
+
+        sequences := []string{
+                "categories_id_sequence",
+                "discounts_id_sequence",
+                "locations_id_sequence",
+                "payment_types_id_sequence",
+                "products_id_sequence",
+                "products_categories_id_sequence",
+                "products_discounts_id_sequence",
+                "products_payment_types_id_sequence",
+                "purchases_id_sequence",
+                "purchases_discounts_id_sequence",
+                "purchases_products_id_sequence",
+                "user_types_id_sequence",
+                "users_id_sequence",
+                "users_locations_id_sequence",
+                "users_user_types_id_sequence",
+        }
+
+        for _, sequence := range sequences {
+                _, err := database.Exec("ALTER SEQUENCE " + sequence + " RESTART WITH 1")
+
+                if err != nil {
+                        panic(err)
+                }
+        }
+}
 
 func Seed() {
         categories := insert_Categories()

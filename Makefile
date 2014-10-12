@@ -11,7 +11,8 @@ all:
 .PHONY: test open
 
 test:
+	./ciudad-gourmet -seed
 	$(GOTEST) -parallel=$(GOMAXPROCS) -v ./...
-
+	./ciudad-gourmet -restore
 open:
 	$(shell sudo setcap cap_net_bind_service=+ep `pwd`/start)

@@ -9,10 +9,14 @@ import (
 
 func main() {
         seed := flag.Bool("seed", false, "Seed the database")
+        restore := flag.Bool("restore", false, "Restore the database")
         flag.Parse()
 
         if *seed {
                 Seed()
+                os.Exit(0)
+        } else if *restore {
+                Restore()
                 os.Exit(0)
         }
 
