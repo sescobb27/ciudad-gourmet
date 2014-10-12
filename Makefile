@@ -6,7 +6,7 @@ GOINSTALL=$(GOCMD) install
 
 all:
 	$(GOBUILD) -i -v -p=$(GOMAXPROCS) -race ./...
-	$(GOBUILD) -o ciudad-gourmet
+	$(GOBUILD) -ldflags "-w" -o ciudad-gourmet
 
 .PHONY: test open
 
