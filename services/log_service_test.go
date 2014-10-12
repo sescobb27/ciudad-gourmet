@@ -68,17 +68,17 @@ func TestNewLogFactory(t *testing.T) {
 
         // testing if the info log file is not empty after a send msg
         // then if PASS, delete the file
-        logFactory.InfoLog.InfoChan <- []byte(msg)
+        logFactory.Info(msg)
         assertFileIsNotEmpty(t, infoFilePath)
 
         // testing if the error log file is not empty after a send msg
         // then if PASS, delete the file
-        logFactory.ErrorLog.ErrorChan <- []byte(msg)
+        logFactory.Error(msg)
         assertFileIsNotEmpty(t, errorFilePath)
 
         // testing if the warning log file is not empty after a send msg
         // then if PASS, delete the file
-        logFactory.WarningLog.WarningChan <- []byte(msg)
+        logFactory.Warning(msg)
         assertFileIsNotEmpty(t, warningFilePath)
 }
 
@@ -91,9 +91,9 @@ func TestCronJobRun(t *testing.T) {
         oldErrorLog := logFactory.ErrorLog
         oldWarningLog := logFactory.WarningLog
 
-        logFactory.InfoLog.InfoChan <- []byte(msg)
-        logFactory.ErrorLog.ErrorChan <- []byte(msg)
-        logFactory.WarningLog.WarningChan <- []byte(msg)
+        logFactory.Info(msg)
+        logFactory.Error(msg)
+        logFactory.Warning(msg)
 
         logFactory.Run()
 
@@ -101,9 +101,9 @@ func TestCronJobRun(t *testing.T) {
         assert.NotEqual(t, oldErrorLog, logFactory.ErrorLog)
         assert.NotEqual(t, oldWarningLog, logFactory.WarningLog)
 
-        logFactory.InfoLog.InfoChan <- []byte(msg)
-        logFactory.ErrorLog.ErrorChan <- []byte(msg)
-        logFactory.WarningLog.WarningChan <- []byte(msg)
+        logFactory.Info(msg)
+        logFactory.Error(msg)
+        logFactory.Warning(msg)
 
         assertFileIsNotEmpty(t, infoFilePath)
         assertFileIsNotEmpty(t, errorFilePath)

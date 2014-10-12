@@ -124,6 +124,18 @@ func (l *LogFactory) listen() {
         }
 }
 
+func (l *LogFactory) Error(msg string) {
+        l.ErrorLog.ErrorChan <- []byte(msg)
+}
+
+func (l *LogFactory) Info(msg string) {
+        l.InfoLog.InfoChan <- []byte(msg)
+}
+
+func (l *LogFactory) Warning(msg string) {
+        l.WarningLog.WarningChan <- []byte(msg)
+}
+
 func (l *LogFactory) Run() {
         l.mux.Lock()
         defer l.mux.Unlock()
