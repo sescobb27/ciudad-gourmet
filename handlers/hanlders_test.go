@@ -4,6 +4,7 @@ import (
         "encoding/json"
         "github.com/sescobb27/ciudad-gourmet/models"
         "io/ioutil"
+        "strings"
         // . "github.com/smartystreets/goconvey/convey"
         "github.com/stretchr/testify/assert"
         "net/http"
@@ -50,4 +51,23 @@ func TestGetCategories(t *testing.T) {
         err = json.Unmarshal(body, &categories)
         assert.NoError(t, err)
         assert.NotEmpty(t, categories)
+}
+
+func TestUserSignUp(t *testing.T) {
+        t.Parallel()
+        recorder := httptest.NewRecorder()
+        req, err := http.NewRequest(
+                "POST",
+                "/signup",
+                strings.NewReader("username=sescob27&email=sescob27@eafit.edu.co&lastname=Escobar&name=Simon&password=12345"),
+        )
+        req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+        assert.NoError(t, err)
+        SignUp_Handler(recorder, req)
+        assert.Equal(t, 200, recorder.Code, recorder.Body.String())
+        username := "sescob27"
+        user, err := models.FindUserByUsername(&username)
+        assert.NoError(t, err)
+        assert.Equal(t, "sescob27", user.Username)
+        assert.Equal(t, "sescob27@eafit.edu.co", user.Email)
 }

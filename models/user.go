@@ -35,9 +35,9 @@ func (u *User) Create() error {
 
         query := `INSERT INTO users(
             created_at, email, lastname, name, password_hash, rate, username)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 
-        _, err = db.Exec(
+        err = db.QueryRow(
                 query,
                 u.CreatedAt.Format(time.RFC850),
                 u.Email,
@@ -46,9 +46,25 @@ func (u *User) Create() error {
                 u.PasswordHash,
                 u.Rate,
                 u.Username,
-        )
+        ).Scan(&u.Id)
 
         return err
+}
+
+func (u *User) IsValid() bool {
+        if !helpers.EmailValidator(u.Email) {
+                u.Errors = append(u.Errors, "Invalid email")
+        }
+        if !helpers.UniqueNamesValidator(u.Username) {
+                u.Errors = append(u.Errors, "Invalid username")
+        }
+        if !helpers.UserNamesValidator(u.Name) {
+                u.Errors = append(u.Errors, "Invalid name")
+        }
+        if !helpers.UserNamesValidator(u.LastName) {
+                u.Errors = append(u.Errors, "Invalid last name")
+        }
+        return len(u.Errors) == 0
 }
 
 func FindUserByEmail(email *string) (*User, error) {

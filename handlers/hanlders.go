@@ -42,20 +42,14 @@ func SignIn_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
-        err := req.ParseForm()
-        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
-        if err != nil {
-                http.Error(res, err.Error(), http.StatusBadRequest)
-                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
-                return
-        }
 
-        username := req.Form.Get("username")
-        email := req.Form.Get("email")
-        lastname := req.Form.Get("lastname")
-        name := req.Form.Get("name")
-        password := req.Form.Get("password")
+        username := req.PostFormValue("username")
+        email := req.PostFormValue("email")
+        lastname := req.PostFormValue("lastname")
+        name := req.PostFormValue("name")
+        password := req.PostFormValue("password")
         timeNow := time.Now().Local()
+        logFactory.Info(formatReq(req))
         dataToEncrypt := []string{timeNow.Format(time.RFC850), password}
 
         passwordHash := helpers.EncryptPassword(dataToEncrypt)
@@ -70,11 +64,23 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
                 Rate:         0.0,
         }
 
-        err = user.Create()
-
-        if err != nil {
-                http.Error(res, err.Error(), http.StatusBadRequest)
-                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
+        if user.IsValid() {
+                err := user.Create()
+                if err != nil {
+                        http.Error(res, err.Error(), http.StatusBadRequest)
+                        logFactory.Error(err.Error())
+                        return
+                }
+        } else {
+                json_err, err := json.Marshal(user.Errors)
+                if err != nil {
+                        http.Error(res, err.Error(), http.StatusInternalServerError)
+                        logFactory.Error(err.Error())
+                        return
+                }
+                res.Header().Set("Content-Type", "application/json")
+                res.Write(json_err)
+                res.WriteHeader(http.StatusBadRequest)
         }
 }
 
@@ -87,7 +93,7 @@ func NewChef_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func Categories_Handler(res http.ResponseWriter, req *http.Request) {
-        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
+        logFactory.Info(formatReq(req))
 
         res.Header().Set("Content-Type", "application/json")
         categories := []*models.Category{}
@@ -95,7 +101,7 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request) {
         json_categories, err := json.Marshal(categories)
 
         if err != nil {
-                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
+                logFactory.Error(err.Error())
                 panic(err)
         }
 
@@ -103,7 +109,7 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func Locations_Handler(res http.ResponseWriter, req *http.Request) {
-        logFactory.InfoLog.InfoChan <- []byte(formatReq(req))
+        logFactory.Info(formatReq(req))
 
         res.Header().Set("Content-Type", "application/json")
         locations := []*models.Location{}
@@ -111,7 +117,7 @@ func Locations_Handler(res http.ResponseWriter, req *http.Request) {
         json_locations, err := json.Marshal(locations)
 
         if err != nil {
-                logFactory.ErrorLog.ErrorChan <- []byte(err.Error())
+                logFactory.Error(err.Error())
                 panic(err)
         }
 
