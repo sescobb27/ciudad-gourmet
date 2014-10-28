@@ -1,8 +1,8 @@
 package main
 
 import (
+        "code.google.com/p/go.crypto/bcrypt"
         "github.com/sescobb27/ciudad-gourmet/db"
-        "github.com/sescobb27/ciudad-gourmet/helpers"
         "github.com/sescobb27/ciudad-gourmet/models"
         "time"
 )
@@ -130,15 +130,21 @@ func insert_Users() []*models.User {
         if len(users) == 0 {
                 for i := 0; i < 4; i++ {
                         now := time.Now().Local()
-                        data := []string{now.Format(time.RFC850), u_passwords[i]}
-                        passwordHash := helpers.EncryptPassword(data)
+                        passwordHash, err := bcrypt.GenerateFromPassword(
+                                []byte(u_passwords[i]),
+                                bcrypt.DefaultCost,
+                        )
+                        if err != nil {
+                                Restore()
+                                panic(err)
+                        }
                         u := &models.User{
                                 CreatedAt:    now,
                                 Username:     u_usernames[i],
                                 Email:        u_emails[i],
                                 LastName:     u_last_names[i],
                                 Name:         u_names[i],
-                                PasswordHash: passwordHash,
+                                PasswordHash: string(passwordHash),
                                 Rate:         0.0,
                         }
                         u.Create()

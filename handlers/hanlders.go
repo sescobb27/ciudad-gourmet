@@ -1,9 +1,9 @@
 package handlers
 
 import (
+        "code.google.com/p/go.crypto/bcrypt"
         "encoding/json"
         "fmt"
-        "github.com/sescobb27/ciudad-gourmet/helpers"
         "github.com/sescobb27/ciudad-gourmet/models"
         "github.com/sescobb27/ciudad-gourmet/services"
         "io/ioutil"
@@ -50,9 +50,17 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
         password := req.PostFormValue("password")
         timeNow := time.Now().Local()
         logFactory.Info(formatReq(req))
-        dataToEncrypt := []string{timeNow.Format(time.RFC850), password}
 
-        passwordHash := helpers.EncryptPassword(dataToEncrypt)
+        passwordHash, err := bcrypt.GenerateFromPassword(
+                []byte(password),
+                bcrypt.DefaultCost,
+        )
+
+        if err != nil {
+                http.Error(res, err.Error(), http.StatusBadRequest)
+                logFactory.Error(err.Error())
+                return
+        }
 
         user := &models.User{
                 CreatedAt:    timeNow,
@@ -60,12 +68,12 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
                 Email:        email,
                 LastName:     lastname,
                 Name:         name,
-                PasswordHash: passwordHash,
+                PasswordHash: string(passwordHash),
                 Rate:         0.0,
         }
 
         if user.IsValid() {
-                err := user.Create()
+                err = user.Create()
                 if err != nil {
                         http.Error(res, err.Error(), http.StatusBadRequest)
                         logFactory.Error(err.Error())
@@ -85,10 +93,6 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func SignOut_Handler(res http.ResponseWriter, req *http.Request) {
-        res.Header().Set("Content-Type", "application/json")
-}
-
-func NewChef_Handler(res http.ResponseWriter, req *http.Request) {
         res.Header().Set("Content-Type", "application/json")
 }
 
