@@ -1,54 +1,54 @@
 package models
 
 import (
-        . "github.com/sescobb27/ciudad-gourmet/db"
+    . "github.com/sescobb27/ciudad-gourmet/db"
 )
 
 type Location struct {
-        Id      int     `json:"id"`
-        Name    string  `json:"name"`
+    Id   int    `json:"id"`
+    Name string `json:"name"`
 }
 
 func (l *Location) Create() (bool, error) {
-        db, err := StablishConnection()
-        if err != nil {
-                return false, err
-        }
-        defer db.Close()
+    db, err := StablishConnection()
+    if err != nil {
+        return false, err
+    }
+    defer db.Close()
 
-        query := `INSERT INTO locations(name) VALUES ($1)`
-        _, err = db.Exec(query, l.Name)
+    query := `INSERT INTO locations(name) VALUES ($1)`
+    _, err = db.Exec(query, l.Name)
 
-        if err != nil {
-                return false, err
-        }
-        return true, nil
+    if err != nil {
+        return false, err
+    }
+    return true, nil
 }
 
 func GetLocations() []*Location {
-        db, err := StablishConnection()
-        if err != nil {
-                panic(err)
-        }
-        defer db.Close()
+    db, err := StablishConnection()
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
 
-        query := `SELECT name FROM locations`
+    query := `SELECT name FROM locations`
 
-        location_rows, err := db.Query(query)
-        if err != nil {
-                panic(err)
-        }
+    location_rows, err := db.Query(query)
+    if err != nil {
+        panic(err)
+    }
 
-        if location_rows == nil {
-                panic(location_rows)
-        }
+    if location_rows == nil {
+        panic(location_rows)
+    }
 
-        locations := []*Location{}
-        for location_rows.Next() {
-                location := Location{}
-                err = location_rows.Scan(&location.Name)
-                locations = append(locations, &location)
-        }
+    locations := []*Location{}
+    for location_rows.Next() {
+        location := Location{}
+        err = location_rows.Scan(&location.Name)
+        locations = append(locations, &location)
+    }
 
-        return locations
+    return locations
 }

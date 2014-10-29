@@ -1,11 +1,11 @@
 package models
 
 import (
-        "github.com/stretchr/testify/assert"
-        "testing"
+    "github.com/stretchr/testify/assert"
+    "testing"
 )
 
 func TestGetCategories(t *testing.T) {
-        categories := GetCategories()
-        assert.NotEmpty(t, categories)
+    categories := GetCategories()
+    assert.NotEmpty(t, categories)
 }
