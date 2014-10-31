@@ -2,7 +2,7 @@ package main
 
 import (
     "code.google.com/p/go.crypto/bcrypt"
-    "github.com/sescobb27/ciudad-gourmet/db"
+    sql "github.com/sescobb27/ciudad-gourmet/db"
     "github.com/sescobb27/ciudad-gourmet/models"
     "time"
 )
@@ -224,13 +224,8 @@ func insert_Products(users []*models.User, locations []*models.Location, categor
 // }
 
 func Restore() {
-    database, err := db.StablishConnection()
-    if err != nil {
-        panic(err)
-    }
-
     tables := "users, categories, locations, products"
-    _, err = database.Exec("TRUNCATE TABLE " + tables + " RESTART IDENTITY CASCADE")
+    _, err := sql.DB.Exec("TRUNCATE TABLE " + tables + " RESTART IDENTITY CASCADE")
 
     if err != nil {
         panic(err)
@@ -255,7 +250,7 @@ func Restore() {
     }
 
     for _, sequence := range sequences {
-        _, err := database.Exec("ALTER SEQUENCE " + sequence + " RESTART WITH 1")
+        _, err := sql.DB.Exec("ALTER SEQUENCE " + sequence + " RESTART WITH 1")
 
         if err != nil {
             panic(err)

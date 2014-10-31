@@ -12,16 +12,24 @@ const (
     db_name                  = "ciudad_gourmet"
 )
 
-func StablishConnection() (*sql.DB, error) {
-    user := os.Getenv("POSTGRESQL_USER")
-    pass := os.Getenv("POSTGRESQL_PASS")
-    host := os.Getenv("PGHOST")
-    connection_params := fmt.Sprintf(connection_format, user, db_name, pass, host)
-    db, err := sql.Open("postgres", connection_params)
+var (
+    DB                *sql.DB
+    user              string
+    pass              string
+    host              string
+    connection_params string
+    err               error
+)
 
+func init() {
+    user = os.Getenv("POSTGRESQL_USER")
+    pass = os.Getenv("POSTGRESQL_PASS")
+    host = os.Getenv("PGHOST")
+    connection_params = fmt.Sprintf(connection_format, user, db_name, pass, host)
+    DB, err = sql.Open("postgres", connection_params)
+    DB.SetMaxIdleConns(10)
+    DB.SetMaxOpenConns(10)
     if err != nil {
-        println("error open")
-        return nil, err
+        panic(err)
     }
-    return db, nil
 }

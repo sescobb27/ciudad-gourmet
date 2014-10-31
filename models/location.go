@@ -1,7 +1,7 @@
 package models
 
 import (
-    . "github.com/sescobb27/ciudad-gourmet/db"
+    sql "github.com/sescobb27/ciudad-gourmet/db"
 )
 
 type Location struct {
@@ -10,14 +10,8 @@ type Location struct {
 }
 
 func (l *Location) Create() (bool, error) {
-    db, err := StablishConnection()
-    if err != nil {
-        return false, err
-    }
-    defer db.Close()
-
     query := `INSERT INTO locations(name) VALUES ($1)`
-    _, err = db.Exec(query, l.Name)
+    _, err := sql.DB.Exec(query, l.Name)
 
     if err != nil {
         return false, err
@@ -26,15 +20,9 @@ func (l *Location) Create() (bool, error) {
 }
 
 func GetLocations() []*Location {
-    db, err := StablishConnection()
-    if err != nil {
-        panic(err)
-    }
-    defer db.Close()
-
     query := `SELECT name FROM locations`
 
-    location_rows, err := db.Query(query)
+    location_rows, err := sql.DB.Query(query)
     if err != nil {
         panic(err)
     }

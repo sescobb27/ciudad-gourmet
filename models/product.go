@@ -2,7 +2,7 @@ package models
 
 import (
     "errors"
-    . "github.com/sescobb27/ciudad-gourmet/db"
+    sql "github.com/sescobb27/ciudad-gourmet/db"
     "github.com/sescobb27/ciudad-gourmet/helpers"
     "log"
     "time"
@@ -23,18 +23,11 @@ type Product struct {
 }
 
 func (p *Product) Create() {
-    db, err := StablishConnection()
-    if err != nil {
-        log.Fatal(err)
-        panic(err)
-    }
-    defer db.Close()
-
     query := `INSERT INTO products(
             created_at, description, image, name, price, rate, chef_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-    _, err = db.Exec(
+    _, err := sql.DB.Exec(
         query,
         p.CreatedAt,
         p.Description,
@@ -57,18 +50,11 @@ func FindProductsByName(name string) ([]*Product, error) {
         return nil, errors.New("Nombre del Producto Invalido")
     }
 
-    db, err := StablishConnection()
-    if err != nil {
-        log.Fatal(err)
-        panic(err)
-    }
-    defer db.Close()
-
     query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
             FROM products AS p
             WHERE LOWER(p.name) LIKE '%' || $1 || '%' ORDER BY p.rate DESC`
 
-    product_rows, err := db.Query(query, name)
+    product_rows, err := sql.DB.Query(query, name)
 
     if err != nil {
         return nil, err
@@ -78,6 +64,8 @@ func FindProductsByName(name string) ([]*Product, error) {
         return nil, errors.New("No Products Named " + name)
     }
 
+    defer product_rows.Close()
+
     products := []*Product{}
     for product_rows.Next() {
         product := new(Product)
@@ -94,25 +82,21 @@ func FindProductsByName(name string) ([]*Product, error) {
         }
         products = append(products, product)
     }
+    if err = product_rows.Err(); err != nil {
+
+    }
     return products, nil
 }
 
 //  ======
 func FindProductsByCategory(category string) ([]*Product, error) {
-    db, err := StablishConnection()
-    if err != nil {
-        log.Fatal(err)
-        panic(err)
-    }
-    defer db.Close()
-
     query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
           FROM products AS p
               INNER JOIN products_categories as pc ON ( p.id = pc.product_id )
                   INNER JOIN categories AS c ON ( pc.category_id = c.id )
           WHERE LOWER(c.name) = LOWER('$1') ORDER BY p.rate DESC`
 
-    product_rows, err := db.Query(query, category)
+    product_rows, err := sql.DB.Query(query, category)
 
     if err != nil {
         return nil, err
@@ -122,6 +106,8 @@ func FindProductsByCategory(category string) ([]*Product, error) {
         return nil, errors.New("No Products For Category: " + category)
     }
 
+    defer product_rows.Close()
+
     products := []*Product{}
 
     for product_rows.Next() {
@@ -138,6 +124,10 @@ func FindProductsByCategory(category string) ([]*Product, error) {
             panic(err)
         }
         products = append(products, product)
+    }
+
+    if err = product_rows.Err(); err != nil {
+
     }
     return products, nil
 }

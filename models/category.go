@@ -1,7 +1,7 @@
 package models
 
 import (
-    . "github.com/sescobb27/ciudad-gourmet/db"
+    sql "github.com/sescobb27/ciudad-gourmet/db"
 )
 
 type Category struct {
@@ -11,16 +11,10 @@ type Category struct {
 }
 
 func (c *Category) Create() (bool, error) {
-    db, err := StablishConnection()
-    if err != nil {
-        return false, err
-    }
-    defer db.Close()
-
     query := `INSERT INTO categories(name, description)
       VALUES ($1, $2)`
 
-    _, err = db.Exec(
+    _, err := sql.DB.Exec(
         query,
         c.Name,
         c.Description,
@@ -33,14 +27,8 @@ func (c *Category) Create() (bool, error) {
 }
 
 func GetCategories() []*Category {
-    db, err := StablishConnection()
-    if err != nil {
-        panic(err)
-    }
-    defer db.Close()
-
     query := `SELECT name FROM categories`
-    categories_rows, err := db.Query(query)
+    categories_rows, err := sql.DB.Query(query)
     if err != nil {
         panic(err)
     }
