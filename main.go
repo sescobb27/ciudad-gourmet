@@ -7,11 +7,18 @@ import (
     "net/http"
     "os"
     "os/signal"
+    "syscall"
 )
 
 func signalHandler() {
     signalChan := make(chan os.Signal, 1)
-    signal.Notify(signalChan, os.Interrupt, os.Kill)
+    signal.Notify(signalChan,
+        syscall.SIGINT,
+        syscall.SIGKILL,
+        syscall.SIGTERM,
+        syscall.SIGQUIT,
+        syscall.SIGABRT,
+    )
     <-signalChan
     println("Closing DB Connection")
     sql.DB.Close()
