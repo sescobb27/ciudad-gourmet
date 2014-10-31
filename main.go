@@ -2,10 +2,21 @@ package main
 
 import (
     "flag"
+    sql "github.com/sescobb27/ciudad-gourmet/db"
     . "github.com/sescobb27/ciudad-gourmet/handlers"
     "net/http"
     "os"
+    "os/signal"
 )
+
+func signalHandler() {
+    signalChan := make(chan os.Signal, 1)
+    signal.Notify(signalChan, os.Interrupt, os.Kill)
+    <-signalChan
+    println("Closing DB Connection")
+    sql.DB.Close()
+    os.Exit(0)
+}
 
 func main() {
     seed := flag.Bool("seed", false, "Seed the database")
@@ -21,6 +32,8 @@ func main() {
     }
 
     server := http.NewServeMux()
+
+    go signalHandler()
 
     server.Handle("/", Get(Index_Handler))
     server.Handle("/categories", Get(Categories_Handler))
