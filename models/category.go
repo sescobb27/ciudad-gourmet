@@ -12,17 +12,15 @@ type Category struct {
 
 func (c *Category) Create() (bool, error) {
     query := `INSERT INTO categories(name, description)
-      VALUES ($1, $2)`
-
-    _, err := sql.DB.Exec(
-        query,
-        c.Name,
-        c.Description,
-    )
+      VALUES ($1, $2) RETURNING id`
+    var category_id int8
+    err := sql.DB.QueryRow(query, c.Name, c.Description).Scan(&category_id)
 
     if err != nil {
         return false, err
     }
+    c.Id = category_id
+
     return true, nil
 }
 

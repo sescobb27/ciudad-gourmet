@@ -192,6 +192,7 @@ func insert_Products(users []*models.User, locations []*models.Location, categor
             Price:       p_prices[i],
             Rate:        p_rates[i],
             Chef:        user,
+            Categories:  categories[i : i+3],
         }
         p.Create()
     }

@@ -25,9 +25,23 @@ type Product struct {
 func (p *Product) Create() {
     query := `INSERT INTO products(
             created_at, description, image, name, price, rate, chef_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+    query2 := `INSERT INTO products_categories(category_id, product_id)
+            VALUES ($1, $2)`
+    var tx_err, err error
+    var product_id int64
+    tx, tx_err := sql.DB.Begin()
 
-    _, err := sql.DB.Exec(
+    if tx_err != nil {
+        err = tx.Rollback()
+        if err != nil {
+            log.Fatal(err, "line 46")
+        }
+        log.Fatal(tx_err, "line 48")
+        panic(err)
+    }
+
+    tx_err = tx.QueryRow(
         query,
         p.CreatedAt,
         p.Description,
@@ -36,10 +50,36 @@ func (p *Product) Create() {
         p.Price,
         p.Rate,
         p.Chef.Id,
-    )
+    ).Scan(&product_id)
 
-    if err != nil {
-        log.Fatal(err)
+    if tx_err != nil {
+        err = tx.Rollback()
+        if err != nil {
+            log.Fatal(err, "line 46")
+        }
+        log.Fatal(tx_err, "line 48")
+        panic(err)
+    }
+
+    for _, category := range p.Categories {
+        _, tx_err = tx.Exec(query2, category.Id, product_id)
+        if tx_err != nil {
+            err = tx.Rollback()
+            if err != nil {
+                log.Fatal(err, "line 57")
+            }
+            log.Fatal(tx_err, "line 59 -> ", product_id, category.Id)
+            panic(err)
+        }
+    }
+
+    tx_err = tx.Commit()
+    if tx_err != nil {
+        err = tx.Rollback()
+        if err != nil {
+            log.Fatal(err, "line 68")
+        }
+        log.Fatal(tx_err, "line 69")
         panic(err)
     }
 }
@@ -102,13 +142,12 @@ func FindProductsByCategory(category string) ([]*Product, error) {
         return nil, err
     }
 
+    products := []*Product{}
     if product_rows == nil {
-        return nil, errors.New("No Products For Category: " + category)
+        return products, errors.New("No Products For Category: " + category)
     }
 
     defer product_rows.Close()
-
-    products := []*Product{}
 
     for product_rows.Next() {
         product := new(Product)
@@ -121,13 +160,13 @@ func FindProductsByCategory(category string) ([]*Product, error) {
             &product.Rate,
         )
         if err != nil {
-            panic(err)
+            return products, err
         }
         products = append(products, product)
     }
 
     if err = product_rows.Err(); err != nil {
-
+        return products, err
     }
     return products, nil
 }
@@ -143,11 +182,44 @@ func FindProductsByLocation(location string) ([]*Product, error) {
 
 //  ======
 func FindProductsByUserName(username string) ([]*Product, error) {
-    // query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
-    //   FROM products as p
-    //   INNER JOIN users as u on ( p.chef_id = u.id )
-    //   WHERE LOWER(u.username) = LOWER($1)`
-    return nil, nil
+    query := `SELECT p.id, p.name, p.description, p.price, p.image, p.rate
+      FROM products as p
+      INNER JOIN users as u on ( p.chef_id = u.id )
+      WHERE LOWER(u.username) = LOWER($1)`
+
+    product_rows, err := sql.DB.Query(query, username)
+
+    if err != nil {
+        return nil, err
+    }
+
+    products := []*Product{}
+    if product_rows == nil {
+        return products, errors.New("No Products For User: " + username)
+    }
+
+    defer product_rows.Close()
+
+    for product_rows.Next() {
+        product := new(Product)
+        err = product_rows.Scan(
+            &product.Id,
+            &product.Name,
+            &product.Description,
+            &product.Price,
+            &product.Image,
+            &product.Rate,
+        )
+        if err != nil {
+            return products, err
+        }
+        products = append(products, product)
+    }
+
+    if err = product_rows.Err(); err != nil {
+        return products, err
+    }
+    return products, nil
 }
 
 //  ======
