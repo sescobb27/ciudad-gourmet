@@ -35,9 +35,9 @@ func (p *Product) Create() {
     if tx_err != nil {
         err = tx.Rollback()
         if err != nil {
-            log.Fatal(err, "line 46")
+            log.Fatal(err)
         }
-        log.Fatal(tx_err, "line 48")
+        log.Fatal(tx_err)
         panic(err)
     }
 
@@ -55,9 +55,9 @@ func (p *Product) Create() {
     if tx_err != nil {
         err = tx.Rollback()
         if err != nil {
-            log.Fatal(err, "line 46")
+            log.Fatal(err)
         }
-        log.Fatal(tx_err, "line 48")
+        log.Fatal(tx_err)
         panic(err)
     }
 
@@ -66,9 +66,9 @@ func (p *Product) Create() {
         if tx_err != nil {
             err = tx.Rollback()
             if err != nil {
-                log.Fatal(err, "line 57")
+                log.Fatal(err)
             }
-            log.Fatal(tx_err, "line 59 -> ", product_id, category.Id)
+            log.Fatal(tx_err)
             panic(err)
         }
     }
@@ -77,9 +77,9 @@ func (p *Product) Create() {
     if tx_err != nil {
         err = tx.Rollback()
         if err != nil {
-            log.Fatal(err, "line 68")
+            log.Fatal(err)
         }
-        log.Fatal(tx_err, "line 69")
+        log.Fatal(tx_err)
         panic(err)
     }
 }
