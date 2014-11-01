@@ -15,7 +15,6 @@ var (
     u_emails = []string{
         "sescob@gmail.com",
         "easierra@gmail.com",
-
         "jknore@gmail.com",
         "jcmejia@gmail.com",
     }

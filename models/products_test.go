@@ -22,3 +22,12 @@ func TestFindProductsByName(t *testing.T) {
         assert.NotEmpty(t, products)
     }
 }
+
+func TestFindProductsByUserName(t *testing.T) {
+    t.Parallel()
+    for _, username := range u_usernames {
+        products, err := FindProductsByUserName(username)
+        assert.NoError(t, err)
+        assert.NotEmpty(t, products)
+    }
+}
