@@ -182,19 +182,25 @@ var (
     p_image string = "images/default.png"
 )
 
-func insert_Products(users []*models.User, locations []*models.Location, categories []*models.Category) {
-    for i, user := range users {
-        p := &models.Product{
-            CreatedAt:   time.Now().Local(),
-            Image:       p_image,
-            Description: p_descriptions[i],
-            Name:        p_names[i],
-            Price:       p_prices[i],
-            Rate:        p_rates[i],
-            Chef:        user,
-            Categories:  categories[i : i+3],
+func insert_Products(users []*models.User, categories []*models.Category) {
+    products, err := models.FindProductsByName("plato")
+    if err != nil {
+        panic(err)
+    }
+    if len(products) == 0 {
+        for i, user := range users {
+            p := &models.Product{
+                CreatedAt:   time.Now().Local(),
+                Image:       p_image,
+                Description: p_descriptions[i],
+                Name:        p_names[i],
+                Price:       p_prices[i],
+                Rate:        p_rates[i],
+                Chef:        user,
+                Categories:  categories[i : i+3],
+            }
+            p.Create()
         }
-        p.Create()
     }
 }
 
@@ -261,9 +267,7 @@ func Restore() {
 
 func Seed() {
     categories := insert_Categories()
-    locations := insert_Locations()
+    insert_Locations()
     users := insert_Users()
-    insert_Products(users, locations, categories)
-    // insertProductsCategories()
-    // insertProductsLocations()
+    insert_Products(users, categories)
 }

@@ -6,35 +6,42 @@ import (
     "github.com/robfig/cron"
     "log"
     "os"
-    "sync"
     "time"
 )
 
 type InfoLog struct {
-    InfoChan chan []byte
-    log      *log.Logger
-    file     *os.File
+    InfoChan   chan []byte
+    UpdateChan chan *os.File
+    log        *log.Logger
+    file       *os.File
 }
 
 type WarningLog struct {
     WarningChan chan []byte
+    UpdateChan  chan *os.File
     log         *log.Logger
     file        *os.File
 }
 
 type ErrorLog struct {
-    ErrorChan chan []byte
-    log       *log.Logger
-    file      *os.File
+    ErrorChan  chan []byte
+    UpdateChan chan *os.File
+    log        *log.Logger
+    file       *os.File
 }
 
 type LogFactory struct {
-    mux        sync.RWMutex
     InfoLog    InfoLog
     WarningLog WarningLog
     ErrorLog   ErrorLog
     path       string
 }
+
+const (
+    INFO    = "INFO"
+    ERROR   = "ERROR"
+    WARNING = "WARNING"
+)
 
 func createFileIfNotExist(path string) (*os.File, error) {
     var file *os.File
@@ -69,11 +76,11 @@ func NewWriter(tag, path string) (*os.File, error) {
     )
     switch tag {
     case "INFO":
-        file, err = createFileIfNotExist(formatFileName(path, "INFO"))
+        file, err = createFileIfNotExist(formatFileName(path, INFO))
     case "ERROR":
-        file, err = createFileIfNotExist(formatFileName(path, "ERROR"))
+        file, err = createFileIfNotExist(formatFileName(path, ERROR))
     case "WARNING":
-        file, err = createFileIfNotExist(formatFileName(path, "WARNING"))
+        file, err = createFileIfNotExist(formatFileName(path, WARNING))
     default:
         return nil, errors.New("Invalid Tag " + tag + " Expected INFO, ERROR or WARNING")
     }
@@ -85,15 +92,15 @@ func NewLogFactory(path string) (*LogFactory, error) {
         infoFile, warningFile, errorFile *os.File
         err                              error
     )
-    infoFile, err = NewWriter("INFO", path)
+    infoFile, err = NewWriter(INFO, path)
     if err != nil {
         return nil, err
     }
-    warningFile, err = NewWriter("WARNING", path)
+    warningFile, err = NewWriter(WARNING, path)
     if err != nil {
         return nil, err
     }
-    errorFile, err = NewWriter("ERROR", path)
+    errorFile, err = NewWriter(ERROR, path)
     if err != nil {
         return nil, err
     }
@@ -104,22 +111,53 @@ func NewLogFactory(path string) (*LogFactory, error) {
         ErrorLog:   NewErrorLog(errorFile),
         path:       path,
     }
-    go logFactory.listen()
+    logFactory.listen()
     cronJob := cron.New()
     cronJob.AddJob("@daily", logFactory)
     return logFactory, nil
 }
 
 func (l *LogFactory) listen() {
-    var infoMsg, warningMsg, errorMsg []byte
+    go l.InfoLog.listen()
+    go l.ErrorLog.listen()
+    go l.WarningLog.listen()
+}
+
+func (i *InfoLog) listen() {
     for {
         select {
-        case infoMsg = <-l.InfoLog.InfoChan:
-            l.InfoLog.log.Println(string(infoMsg))
-        case warningMsg = <-l.ErrorLog.ErrorChan:
-            l.WarningLog.log.Println(string(warningMsg))
-        case errorMsg = <-l.WarningLog.WarningChan:
-            l.ErrorLog.log.Println(string(errorMsg))
+        case infoMsg := <-i.InfoChan:
+            i.log.Println(string(infoMsg))
+        case file := <-i.UpdateChan:
+            i.file.Close()
+            i.log = NewLog(INFO+": ", file)
+            i.file = file
+        }
+    }
+}
+
+func (e *ErrorLog) listen() {
+    for {
+        select {
+        case errorMsg := <-e.ErrorChan:
+            e.log.Println(string(errorMsg))
+        case file := <-e.UpdateChan:
+            e.file.Close()
+            e.log = NewLog(ERROR+": ", file)
+            e.file = file
+        }
+    }
+}
+
+func (w *WarningLog) listen() {
+    for {
+        select {
+        case warningMsg := <-w.WarningChan:
+            w.log.Println(string(warningMsg))
+        case file := <-w.UpdateChan:
+            w.file.Close()
+            w.log = NewLog(WARNING+": ", file)
+            w.file = file
         }
     }
 }
@@ -137,40 +175,30 @@ func (l *LogFactory) Warning(msg string) {
 }
 
 func (l *LogFactory) Run() {
-    l.mux.Lock()
-    defer l.mux.Unlock()
-
     var (
         infoFile    *os.File
         warningFile *os.File
         errorFile   *os.File
         err         error
     )
-
-    infoFile, err = NewWriter("INFO", l.path)
+    infoFile, err = NewWriter(INFO, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- []byte(err.Error())
         return
     }
-    warningFile, err = NewWriter("WARNING", l.path)
+    warningFile, err = NewWriter(WARNING, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- []byte(err.Error())
         return
     }
-    errorFile, err = NewWriter("ERROR", l.path)
+    errorFile, err = NewWriter(ERROR, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- []byte(err.Error())
         return
     }
-
-    l.InfoLog.file.Close()
-    l.WarningLog.file.Close()
-    l.ErrorLog.file.Close()
-
-    l.InfoLog.log = NewLog("INFO: ", infoFile)
-    l.WarningLog.log = NewLog("WARNING: ", warningFile)
-    l.ErrorLog.log = NewLog("ERROR: ", errorFile)
-
+    l.InfoLog.UpdateChan <- infoFile
+    l.WarningLog.UpdateChan <- warningFile
+    l.ErrorLog.UpdateChan <- errorFile
 }
 
 func NewLog(tag string, file *os.File) *log.Logger {
@@ -179,8 +207,9 @@ func NewLog(tag string, file *os.File) *log.Logger {
 
 func NewInfoLog(file *os.File) InfoLog {
     return InfoLog{
-        InfoChan: make(chan []byte, 10),
-        log: log.New(file, "INFO: ",
+        InfoChan:   make(chan []byte, 10),
+        UpdateChan: make(chan *os.File),
+        log: log.New(file, INFO+": ",
             log.Ldate|log.Ltime),
         file: file,
     }
@@ -189,7 +218,8 @@ func NewInfoLog(file *os.File) InfoLog {
 func NewWarningLog(file *os.File) WarningLog {
     return WarningLog{
         WarningChan: make(chan []byte, 10),
-        log: log.New(file, "WARNING: ",
+        UpdateChan:  make(chan *os.File),
+        log: log.New(file, WARNING+": ",
             log.Ldate|log.Ltime|log.Lshortfile),
         file: file,
     }
@@ -197,8 +227,9 @@ func NewWarningLog(file *os.File) WarningLog {
 
 func NewErrorLog(file *os.File) ErrorLog {
     return ErrorLog{
-        ErrorChan: make(chan []byte, 10),
-        log: log.New(file, "ERROR: ",
+        ErrorChan:  make(chan []byte, 10),
+        UpdateChan: make(chan *os.File),
+        log: log.New(file, ERROR+": ",
             log.Ldate|log.Ltime|log.Lshortfile),
         file: file,
     }

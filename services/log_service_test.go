@@ -5,6 +5,7 @@ import (
     "os"
     "testing"
     "time"
+    "unsafe"
 )
 
 const (
@@ -87,19 +88,21 @@ func TestCronJobRun(t *testing.T) {
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
 
-    oldInfoLog := logFactory.InfoLog
-    oldErrorLog := logFactory.ErrorLog
-    oldWarningLog := logFactory.WarningLog
+    oldInfoLog := unsafe.Pointer(logFactory.InfoLog.log)
+    oldErrorLog := unsafe.Pointer(logFactory.ErrorLog.log)
+    oldWarningLog := unsafe.Pointer(logFactory.WarningLog.log)
 
     logFactory.Info(msg)
     logFactory.Error(msg)
     logFactory.Warning(msg)
 
     logFactory.Run()
-
-    assert.NotEqual(t, oldInfoLog, logFactory.InfoLog)
-    assert.NotEqual(t, oldErrorLog, logFactory.ErrorLog)
-    assert.NotEqual(t, oldWarningLog, logFactory.WarningLog)
+    newInfoLog := unsafe.Pointer(&logFactory.InfoLog.log)
+    newErrorLog := unsafe.Pointer(&logFactory.ErrorLog.log)
+    newWarningLog := unsafe.Pointer(&logFactory.WarningLog.log)
+    assert.NotEqual(t, oldInfoLog, newInfoLog)
+    assert.NotEqual(t, oldErrorLog, newErrorLog)
+    assert.NotEqual(t, oldWarningLog, newWarningLog)
 
     logFactory.Info(msg)
     logFactory.Error(msg)
