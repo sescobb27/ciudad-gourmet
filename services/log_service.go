@@ -1,7 +1,6 @@
 package services
 
 import (
-    "errors"
     "fmt"
     "github.com/robfig/cron"
     "log"
@@ -38,9 +37,12 @@ type LogFactory struct {
 }
 
 const (
-    INFO    = "INFO"
-    ERROR   = "ERROR"
-    WARNING = "WARNING"
+    INFO        = "INFO"
+    ERROR       = "ERROR"
+    WARNING     = "WARNING"
+    INFO_TAG    = "INFO: "
+    ERROR_TAG   = "ERROR: "
+    WARNING_TAG = "WARNING: "
 )
 
 func createFileIfNotExist(path string) (*os.File, error) {
@@ -70,21 +72,7 @@ func formatFileName(path, prefix string) string {
 }
 
 func NewWriter(tag, path string) (*os.File, error) {
-    var (
-        file *os.File
-        err  error
-    )
-    switch tag {
-    case "INFO":
-        file, err = createFileIfNotExist(formatFileName(path, INFO))
-    case "ERROR":
-        file, err = createFileIfNotExist(formatFileName(path, ERROR))
-    case "WARNING":
-        file, err = createFileIfNotExist(formatFileName(path, WARNING))
-    default:
-        return nil, errors.New("Invalid Tag " + tag + " Expected INFO, ERROR or WARNING")
-    }
-    return file, err
+    return createFileIfNotExist(formatFileName(path, tag))
 }
 
 func NewLogFactory(path string) (*LogFactory, error) {
@@ -130,7 +118,7 @@ func (i *InfoLog) listen() {
             i.log.Println(infoMsg)
         case file := <-i.UpdateChan:
             i.file.Close()
-            i.log = NewLog(INFO+": ", file)
+            i.log = NewLog(INFO_TAG, file)
             i.file = file
         }
     }
@@ -143,7 +131,7 @@ func (e *ErrorLog) listen() {
             e.log.Println(errorMsg)
         case file := <-e.UpdateChan:
             e.file.Close()
-            e.log = NewLog(ERROR+": ", file)
+            e.log = NewLog(ERROR_TAG, file)
             e.file = file
         }
     }
@@ -156,7 +144,7 @@ func (w *WarningLog) listen() {
             w.log.Println(warningMsg)
         case file := <-w.UpdateChan:
             w.file.Close()
-            w.log = NewLog(WARNING+": ", file)
+            w.log = NewLog(WARNING_TAG, file)
             w.file = file
         }
     }
@@ -202,16 +190,19 @@ func (l *LogFactory) Run() {
 }
 
 func NewLog(tag string, file *os.File) *log.Logger {
-    return log.New(file, tag, log.Ldate|log.Ltime|log.Lshortfile)
+    logger := log.New(file, tag, log.Ldate|log.Ltime)
+    if tag != INFO_TAG {
+        logger.SetFlags(log.Lshortfile)
+    }
+    return logger
 }
 
 func NewInfoLog(file *os.File) InfoLog {
     return InfoLog{
         InfoChan:   make(chan string, 10),
         UpdateChan: make(chan *os.File),
-        log: log.New(file, INFO+": ",
-            log.Ldate|log.Ltime),
-        file: file,
+        log:        NewLog(INFO_TAG, file),
+        file:       file,
     }
 }
 
@@ -219,9 +210,8 @@ func NewWarningLog(file *os.File) WarningLog {
     return WarningLog{
         WarningChan: make(chan string, 10),
         UpdateChan:  make(chan *os.File),
-        log: log.New(file, WARNING+": ",
-            log.Ldate|log.Ltime|log.Lshortfile),
-        file: file,
+        log:         NewLog(WARNING_TAG, file),
+        file:        file,
     }
 }
 
@@ -229,8 +219,7 @@ func NewErrorLog(file *os.File) ErrorLog {
     return ErrorLog{
         ErrorChan:  make(chan string, 10),
         UpdateChan: make(chan *os.File),
-        log: log.New(file, ERROR+": ",
-            log.Ldate|log.Ltime|log.Lshortfile),
-        file: file,
+        log:        NewLog(ERROR_TAG, file),
+        file:       file,
     }
 }
