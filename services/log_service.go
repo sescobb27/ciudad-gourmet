@@ -10,21 +10,21 @@ import (
 )
 
 type InfoLog struct {
-    InfoChan   chan []byte
+    InfoChan   chan string
     UpdateChan chan *os.File
     log        *log.Logger
     file       *os.File
 }
 
 type WarningLog struct {
-    WarningChan chan []byte
+    WarningChan chan string
     UpdateChan  chan *os.File
     log         *log.Logger
     file        *os.File
 }
 
 type ErrorLog struct {
-    ErrorChan  chan []byte
+    ErrorChan  chan string
     UpdateChan chan *os.File
     log        *log.Logger
     file       *os.File
@@ -127,7 +127,7 @@ func (i *InfoLog) listen() {
     for {
         select {
         case infoMsg := <-i.InfoChan:
-            i.log.Println(string(infoMsg))
+            i.log.Println(infoMsg)
         case file := <-i.UpdateChan:
             i.file.Close()
             i.log = NewLog(INFO+": ", file)
@@ -140,7 +140,7 @@ func (e *ErrorLog) listen() {
     for {
         select {
         case errorMsg := <-e.ErrorChan:
-            e.log.Println(string(errorMsg))
+            e.log.Println(errorMsg)
         case file := <-e.UpdateChan:
             e.file.Close()
             e.log = NewLog(ERROR+": ", file)
@@ -153,7 +153,7 @@ func (w *WarningLog) listen() {
     for {
         select {
         case warningMsg := <-w.WarningChan:
-            w.log.Println(string(warningMsg))
+            w.log.Println(warningMsg)
         case file := <-w.UpdateChan:
             w.file.Close()
             w.log = NewLog(WARNING+": ", file)
@@ -163,15 +163,15 @@ func (w *WarningLog) listen() {
 }
 
 func (l *LogFactory) Error(msg string) {
-    l.ErrorLog.ErrorChan <- []byte(msg)
+    l.ErrorLog.ErrorChan <- msg
 }
 
 func (l *LogFactory) Info(msg string) {
-    l.InfoLog.InfoChan <- []byte(msg)
+    l.InfoLog.InfoChan <- msg
 }
 
 func (l *LogFactory) Warning(msg string) {
-    l.WarningLog.WarningChan <- []byte(msg)
+    l.WarningLog.WarningChan <- msg
 }
 
 func (l *LogFactory) Run() {
@@ -183,17 +183,17 @@ func (l *LogFactory) Run() {
     )
     infoFile, err = NewWriter(INFO, l.path)
     if err != nil {
-        l.ErrorLog.ErrorChan <- []byte(err.Error())
+        l.ErrorLog.ErrorChan <- err.Error()
         return
     }
     warningFile, err = NewWriter(WARNING, l.path)
     if err != nil {
-        l.ErrorLog.ErrorChan <- []byte(err.Error())
+        l.ErrorLog.ErrorChan <- err.Error()
         return
     }
     errorFile, err = NewWriter(ERROR, l.path)
     if err != nil {
-        l.ErrorLog.ErrorChan <- []byte(err.Error())
+        l.ErrorLog.ErrorChan <- err.Error()
         return
     }
     l.InfoLog.UpdateChan <- infoFile
@@ -207,7 +207,7 @@ func NewLog(tag string, file *os.File) *log.Logger {
 
 func NewInfoLog(file *os.File) InfoLog {
     return InfoLog{
-        InfoChan:   make(chan []byte, 10),
+        InfoChan:   make(chan string, 10),
         UpdateChan: make(chan *os.File),
         log: log.New(file, INFO+": ",
             log.Ldate|log.Ltime),
@@ -217,7 +217,7 @@ func NewInfoLog(file *os.File) InfoLog {
 
 func NewWarningLog(file *os.File) WarningLog {
     return WarningLog{
-        WarningChan: make(chan []byte, 10),
+        WarningChan: make(chan string, 10),
         UpdateChan:  make(chan *os.File),
         log: log.New(file, WARNING+": ",
             log.Ldate|log.Ltime|log.Lshortfile),
@@ -227,7 +227,7 @@ func NewWarningLog(file *os.File) WarningLog {
 
 func NewErrorLog(file *os.File) ErrorLog {
     return ErrorLog{
-        ErrorChan:  make(chan []byte, 10),
+        ErrorChan:  make(chan string, 10),
         UpdateChan: make(chan *os.File),
         log: log.New(file, ERROR+": ",
             log.Ldate|log.Ltime|log.Lshortfile),
