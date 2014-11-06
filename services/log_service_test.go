@@ -34,27 +34,27 @@ func TestFormatFileName(t *testing.T) {
     assert.Equal(t, path+"-TEST-"+now, formatedFileName)
 }
 
-func TestNewWriter(t *testing.T) {
-    // testing if the NewWriter method creates a file with the pattern
+func TestNewFile(t *testing.T) {
+    // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-INFO-Month-Day-Year
     // then if PASS remove the file
-    infoFile, err := NewWriter("INFO", path)
+    infoFile, err := NewFile("INFO", path)
     assert.NoError(t, err)
     infoFile.Close()
     assertFileExist(t, infoFilePath)
 
-    // testing if the NewWriter method creates a file with the pattern
+    // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-ERROR-Month-Day-Year
     // then if PASS remove the file
-    errorFile, err := NewWriter("ERROR", path)
+    errorFile, err := NewFile("ERROR", path)
     assert.NoError(t, err)
     errorFile.Close()
     assertFileExist(t, errorFilePath)
 
-    // testing if the NewWriter method creates a file with the pattern
+    // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-WARNING-Month-Day-Year
     // then if PASS remove the file
-    warningFile, err := NewWriter("WARNING", path)
+    warningFile, err := NewFile("WARNING", path)
     assert.NoError(t, err)
     warningFile.Close()
     assertFileExist(t, warningFilePath)

@@ -71,7 +71,7 @@ func formatFileName(path, prefix string) string {
     return fmt.Sprintf("%s-%s-%s", path, prefix, date)
 }
 
-func NewWriter(tag, path string) (*os.File, error) {
+func NewFile(tag, path string) (*os.File, error) {
     return createFileIfNotExist(formatFileName(path, tag))
 }
 
@@ -80,15 +80,15 @@ func NewLogFactory(path string) (*LogFactory, error) {
         infoFile, warningFile, errorFile *os.File
         err                              error
     )
-    infoFile, err = NewWriter(INFO, path)
+    infoFile, err = NewFile(INFO, path)
     if err != nil {
         return nil, err
     }
-    warningFile, err = NewWriter(WARNING, path)
+    warningFile, err = NewFile(WARNING, path)
     if err != nil {
         return nil, err
     }
-    errorFile, err = NewWriter(ERROR, path)
+    errorFile, err = NewFile(ERROR, path)
     if err != nil {
         return nil, err
     }
@@ -169,17 +169,17 @@ func (l *LogFactory) Run() {
         errorFile   *os.File
         err         error
     )
-    infoFile, err = NewWriter(INFO, l.path)
+    infoFile, err = NewFile(INFO, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- err.Error()
         return
     }
-    warningFile, err = NewWriter(WARNING, l.path)
+    warningFile, err = NewFile(WARNING, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- err.Error()
         return
     }
-    errorFile, err = NewWriter(ERROR, l.path)
+    errorFile, err = NewFile(ERROR, l.path)
     if err != nil {
         l.ErrorLog.ErrorChan <- err.Error()
         return
