@@ -4,6 +4,7 @@ import (
     "code.google.com/p/go.crypto/bcrypt"
     "encoding/json"
     "fmt"
+    "github.com/julienschmidt/httprouter"
     "github.com/sescobb27/ciudad-gourmet/models"
     "github.com/sescobb27/ciudad-gourmet/services"
     "io/ioutil"
@@ -24,7 +25,7 @@ func init() {
     }
 }
 
-func Index_Handler(res http.ResponseWriter, req *http.Request) {
+func Index_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "text/html")
     file, err := ioutil.ReadFile("resources/index.html")
     if err != nil {
@@ -37,11 +38,11 @@ func formatReq(req *http.Request) string {
     return fmt.Sprintf("%v", (*req))
 }
 
-func SignIn_Handler(res http.ResponseWriter, req *http.Request) {
+func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }
 
-func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
+func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
     username := req.PostFormValue("username")
     email := req.PostFormValue("email")
@@ -92,11 +93,11 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request) {
     }
 }
 
-func SignOut_Handler(res http.ResponseWriter, req *http.Request) {
+func SignOut_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }
 
-func Categories_Handler(res http.ResponseWriter, req *http.Request) {
+func Categories_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
     logFactory.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
@@ -112,7 +113,7 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request) {
     res.Write(json_categories)
 }
 
-func Locations_Handler(res http.ResponseWriter, req *http.Request) {
+func Locations_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
     logFactory.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
@@ -128,11 +129,11 @@ func Locations_Handler(res http.ResponseWriter, req *http.Request) {
     res.Write(json_locations)
 }
 
-func Products_Handler(res http.ResponseWriter, req *http.Request) {
+func Products_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }
 
-func FindProducts_Handler(res http.ResponseWriter, req *http.Request) {
+func FindProducts_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
     err := req.ParseForm()
     if err != nil {
@@ -186,14 +187,14 @@ func FindProducts_Handler(res http.ResponseWriter, req *http.Request) {
     res.Write(products_json)
 }
 
-func Purchase_Handler(res http.ResponseWriter, req *http.Request) {
+func Purchase_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }
 
-func Chefs_Handler(res http.ResponseWriter, req *http.Request) {
+func Chefs_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }
 
-func ChefAddProduct_Handler(res http.ResponseWriter, req *http.Request) {
+func ChefAddProduct_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "application/json")
 }

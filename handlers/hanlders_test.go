@@ -2,6 +2,7 @@ package handlers
 
 import (
     "encoding/json"
+    "github.com/julienschmidt/httprouter"
     "github.com/sescobb27/ciudad-gourmet/models"
     "io/ioutil"
     "strings"
@@ -17,8 +18,9 @@ func TestGetLocations(t *testing.T) {
 
     recorder := httptest.NewRecorder()
     req, err := http.NewRequest("GET", "/locations", nil)
+    ps := httprouter.Params{}
 
-    Locations_Handler(recorder, req)
+    Locations_Handler(recorder, req, ps)
     assert.NoError(t, err)
     assert.Equal(t, 200, recorder.Code)
     assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
@@ -38,8 +40,9 @@ func TestGetCategories(t *testing.T) {
 
     recorder := httptest.NewRecorder()
     req, err := http.NewRequest("GET", "/categories", nil)
+    ps := httprouter.Params{}
 
-    Categories_Handler(recorder, req)
+    Categories_Handler(recorder, req, ps)
     assert.NoError(t, err)
     assert.Equal(t, 200, recorder.Code)
     assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
@@ -61,9 +64,10 @@ func TestUserSignUp(t *testing.T) {
         "/signup",
         strings.NewReader("username=sescob27&email=sescob27@eafit.edu.co&lastname=Escobar&name=Simon&password=12345"),
     )
+    ps := httprouter.Params{}
     req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
     assert.NoError(t, err)
-    SignUp_Handler(recorder, req)
+    SignUp_Handler(recorder, req, ps)
     assert.Equal(t, 200, recorder.Code, recorder.Body.String())
     username := "sescob27"
     user, err := models.FindUserByUsername(&username)

@@ -2,6 +2,7 @@ package main
 
 import (
     "flag"
+    "github.com/julienschmidt/httprouter"
     sql "github.com/sescobb27/ciudad-gourmet/db"
     . "github.com/sescobb27/ciudad-gourmet/handlers"
     "net/http"
@@ -38,39 +39,39 @@ func main() {
         os.Exit(0)
     }
 
-    server := http.NewServeMux()
+    router := httprouter.New()
 
     go signalHandler()
 
-    server.Handle("/", Get(Index_Handler))
-    server.Handle("/categories", Get(Categories_Handler))
-    server.Handle("/locations", Get(Locations_Handler))
-    server.Handle("/products", Get(Products_Handler))
-    server.Handle("/products/find", Get(FindProducts_Handler))
+    router.GET("/", Index_Handler)
+    router.GET("/categories", Categories_Handler)
+    router.GET("/locations", Locations_Handler)
+    router.GET("/products", Products_Handler)
+    router.GET("/products/find", FindProducts_Handler)
 
-    server.Handle("/signin", Post(SignIn_Handler))
-    server.Handle("/signout", Post(SignOut_Handler))
-    server.Handle("/signup", Post(SignUp_Handler))
-    server.Handle("/purchase", Post(Purchase_Handler))
+    router.POST("/signin", SignIn_Handler)
+    router.POST("/signout", SignOut_Handler)
+    router.POST("/signup", SignUp_Handler)
+    router.POST("/purchase", Purchase_Handler)
 
-    server.Handle("/chefs", Get(Chefs_Handler))
-    server.Handle("/chefs/product/add", Post(ChefAddProduct_Handler))
+    router.GET("/chefs", Chefs_Handler)
+    router.POST("/chefs/product/add", ChefAddProduct_Handler)
 
-    server.Handle("/images/",
+    router.Handler("GET", "/images/*filename",
         http.StripPrefix("/images/",
             http.FileServer(http.Dir("resources/images"))))
 
-    server.Handle("/css/",
+    router.Handler("GET", "/css/*filename",
         http.StripPrefix("/css/",
             http.FileServer(http.Dir("resources/css"))))
 
-    server.Handle("/js/",
+    router.Handler("GET", "/js/*filename",
         http.StripPrefix("/js/",
             http.FileServer(http.Dir("resources/js"))))
 
-    server.Handle("/catalog/",
+    router.Handler("GET", "/catalog/*filename",
         http.StripPrefix("/catalog/",
             http.FileServer(http.Dir("resources/catalog"))))
 
-    http.ListenAndServe(":3000", server)
+    http.ListenAndServe(":3000", router)
 }
