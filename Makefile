@@ -8,7 +8,7 @@ all: install
 	$(GOBUILD) -v -p=$(GOMAXPROCS) -race ./...
 	$(GOBUILD) -ldflags "-w" -o ciudad-gourmet
 
-.PHONY: test open install test-race
+.PHONY: test open install test-race clean
 
 test:
 	./ciudad-gourmet -seed
@@ -22,6 +22,11 @@ test-race:
 	./ciudad-gourmet -seed
 	$(GOTEST) -parallel=$(GOMAXPROCS) -race -v ./...
 	./ciudad-gourmet -restore
+
+clean:
+	rm -rf ciudad-gourmet.log-*
+	rm -rf handlers/ciudad-gourmet.log-*
+
 
 open:
 	$(shell sudo setcap cap_net_bind_service=+ep `pwd`/start)
