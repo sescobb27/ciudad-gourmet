@@ -35,6 +35,7 @@ func TestFormatFileName(t *testing.T) {
 }
 
 func TestNewFile(t *testing.T) {
+    t.Parallel()
     // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-INFO-Month-Day-Year
     // then if PASS remove the file
@@ -61,6 +62,7 @@ func TestNewFile(t *testing.T) {
 }
 
 func TestNewLogFactory(t *testing.T) {
+    t.Parallel()
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
     const (
@@ -84,6 +86,7 @@ func TestNewLogFactory(t *testing.T) {
 }
 
 func TestCronJobRun(t *testing.T) {
+    t.Parallel()
 
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
@@ -117,7 +120,9 @@ func assertFileExist(t *testing.T, path string) {
     _, err := os.Stat(path)
     assert.NoError(t, err)
     err = os.Remove(path)
-    assert.NoError(t, err)
+    if !os.IsNotExist(err) {
+        assert.NoError(t, err)
+    }
 }
 
 func assertFileIsNotEmpty(t *testing.T, path string) {
@@ -130,5 +135,7 @@ func assertFileIsNotEmpty(t *testing.T, path string) {
     file.Read(buffer)
     assert.NotEmpty(t, buffer)
     err = os.Remove(path)
-    assert.NoError(t, err)
+    if !os.IsNotExist(err) {
+        assert.NoError(t, err)
+    }
 }
