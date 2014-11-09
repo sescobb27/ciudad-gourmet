@@ -10,7 +10,7 @@ import (
 
 type Product struct {
     Id          int64       `json:"id"`
-    CreatedAt   time.Time   `json:"createdat,omitempty"`
+    CreatedAt   time.Time   `json:"created_at,omitempty"`
     Image       string      `json:"image"`
     Description string      `json:"description"`
     Name        string      `json:"name"`
