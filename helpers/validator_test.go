@@ -6,6 +6,7 @@ import (
 )
 
 func TestEmailValidator_Valid(t *testing.T) {
+    t.Parallel()
     valid_emails := []string{
         "pepe27@gmail.com",
         "pep@adu.co",
@@ -24,6 +25,7 @@ func TestEmailValidator_Valid(t *testing.T) {
 }
 
 func TestEmailValidator_Invalid(t *testing.T) {
+    t.Parallel()
     invalid_emails := []string{
         "@gmail.com",
         "@adu.co",
@@ -46,6 +48,7 @@ func TestEmailValidator_Invalid(t *testing.T) {
 }
 
 func TestUserNamesValidator_Valid(t *testing.T) {
+    t.Parallel()
     valid_names := []string{
         "Simon",
         "Kiro",
@@ -73,6 +76,7 @@ func TestUserNamesValidator_Valid(t *testing.T) {
 }
 
 func TestUserNamesValidator_Invalid(t *testing.T) {
+    t.Parallel()
     invalid_names := []string{"",
         "   ",
         "Simon1",
