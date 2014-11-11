@@ -1,9 +1,9 @@
 package main
 
 import (
-    "code.google.com/p/go.crypto/bcrypt"
     sql "github.com/sescobb27/ciudad-gourmet/db"
     "github.com/sescobb27/ciudad-gourmet/models"
+    "golang.org/x/crypto/bcrypt"
     "time"
 )
 

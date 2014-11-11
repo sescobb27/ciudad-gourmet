@@ -75,3 +75,18 @@ func TestUserSignUp(t *testing.T) {
     assert.Equal(t, "sescob27", user.Username)
     assert.Equal(t, "sescob27@eafit.edu.co", user.Email)
 }
+
+func TestUserSignIn(t *testing.T) {
+    t.Parallel()
+    recorder := httptest.NewRecorder()
+    req, err := http.NewRequest(
+        "POST",
+        "/signin",
+        strings.NewReader("username=sescob&password=qwerty"),
+    )
+    assert.NoError(t, err)
+    ps := httprouter.Params{}
+    req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+    SignIn_Handler(recorder, req, ps)
+    assert.Equal(t, 200, recorder.Code)
+}

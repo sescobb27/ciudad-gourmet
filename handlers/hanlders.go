@@ -1,12 +1,12 @@
 package handlers
 
 import (
-    "code.google.com/p/go.crypto/bcrypt"
     "encoding/json"
     "fmt"
     "github.com/julienschmidt/httprouter"
     "github.com/sescobb27/ciudad-gourmet/models"
     "github.com/sescobb27/ciudad-gourmet/services"
+    "golang.org/x/crypto/bcrypt"
     "io/ioutil"
     "net/http"
     "strconv"
@@ -39,7 +39,23 @@ func formatReq(req *http.Request) string {
 }
 
 func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-    res.Header().Set("Content-Type", "application/json")
+    username := req.PostFormValue("username")
+    password := req.PostFormValue("password")
+    user, err := models.FindUserByUsername(&username)
+    if err != nil {
+        http.Error(res, err.Error(), http.StatusNotFound)
+        logFactory.Error(err.Error())
+        return
+    }
+    err = bcrypt.CompareHashAndPassword(
+        []byte(user.PasswordHash),
+        []byte(password),
+    )
+    if err != nil {
+        http.Error(res, err.Error(), http.StatusNotFound)
+        logFactory.Error(err.Error())
+        return
+    }
 }
 
 func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
