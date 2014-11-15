@@ -28,7 +28,7 @@ func (mp *MemoryProvider) SessionStore(sessionId string) SessionStore {
     <-mp.semaphore
     sessionStore, exist := mp.sessions[sessionId]
     if !exist {
-        sessionStore := NewMemorySessionStore(sessionId)
+        sessionStore = NewMemorySessionStore(sessionId)
         mp.sessions[sessionId] = sessionStore
     }
     mp.semaphore <- signal{}
