@@ -5,7 +5,7 @@ import (
     "fmt"
     "github.com/julienschmidt/httprouter"
     "github.com/sescobb27/ciudad-gourmet/models"
-    "github.com/sescobb27/ciudad-gourmet/services"
+    "github.com/sescobb27/ciudad-gourmet/services/log"
     "golang.org/x/crypto/bcrypt"
     "io/ioutil"
     "net/http"
@@ -14,12 +14,12 @@ import (
 )
 
 var (
-    logFactory *services.LogFactory
+    logFactory *log.LogFactory
 )
 
 func init() {
     var err error
-    logFactory, err = services.NewLogFactory("./ciudad-gourmet.log")
+    logFactory, err = log.NewLogFactory("./ciudad-gourmet.log")
     if err != nil {
         panic(err)
     }

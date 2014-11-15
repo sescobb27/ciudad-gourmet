@@ -1,4 +1,4 @@
-package services
+package log
 
 import (
     "github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ var (
 )
 
 func TestCreateFileIfNotExist(t *testing.T) {
-    t.Parallel()
+    // t.Parallel()
     file, err := createFileIfNotExist(path)
     assert.NoError(t, err)
     file.Close()
@@ -35,7 +35,7 @@ func TestFormatFileName(t *testing.T) {
 }
 
 func TestNewFile(t *testing.T) {
-    t.Parallel()
+    // t.Parallel()
     // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-INFO-Month-Day-Year
     // then if PASS remove the file
@@ -62,7 +62,7 @@ func TestNewFile(t *testing.T) {
 }
 
 func TestNewLogFactory(t *testing.T) {
-    t.Parallel()
+    // t.Parallel()
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
     const (
@@ -86,7 +86,7 @@ func TestNewLogFactory(t *testing.T) {
 }
 
 func TestCronJobRun(t *testing.T) {
-    t.Parallel()
+    // t.Parallel()
 
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
