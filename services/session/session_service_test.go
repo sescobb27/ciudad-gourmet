@@ -96,7 +96,6 @@ func TestSessionDestroy_2DifferentRequest(t *testing.T) {
     go func(rw http.ResponseWriter, r *http.Request) {
         cookie.SessionDestroy(rw, r)
         done <- signal{}
-        assert.NoError(t, err)
         assert.Nil(t, cookie.provider.SessionRead(sessionStore.SessionID()))
         ws.Done()
     }(recorder, req)
@@ -104,9 +103,6 @@ func TestSessionDestroy_2DifferentRequest(t *testing.T) {
     ws.Add(1)
     go func(rw http.ResponseWriter, r *http.Request) {
         <-done
-        assert.Nil(t, cookie.provider.SessionRead(sessionStore.SessionID()))
-        cookie.SessionDestroy(rw, r)
-        assert.NoError(t, err)
         assert.Nil(t, cookie.provider.SessionRead(sessionStore.SessionID()))
         ws.Done()
     }(recorder, req)
