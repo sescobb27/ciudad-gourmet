@@ -20,7 +20,7 @@ func NewSessionProvider() *MemoryProvider {
         sessions:  make(map[string]SessionStore),
         semaphore: make(chan signal, 1),
     }
-    mp.semaphore <- signal{}
+    mp.semaphore <- signal{} //starts the semaphore
     return mp
 }
 

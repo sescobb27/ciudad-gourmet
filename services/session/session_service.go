@@ -26,7 +26,7 @@ func NewCookieManager(cookieName string, expiresOn time.Time, sessionIdLength in
         provider:        provider,
         semaphore:       make(chan signal, 1),
     }
-    cookie.semaphore <- signal{}
+    cookie.semaphore <- signal{} //starts the semaphore
     return cookie
 }
 

@@ -33,7 +33,7 @@ func NewMemorySessionStore(sessionId string) *MemorySessionStore {
         session:   make(map[string]interface{}),
         semaphore: make(chan signal, 1),
     }
-    mStore.semaphore <- signal{}
+    mStore.semaphore <- signal{} //starts the semaphore
     return mStore
 }
 
