@@ -3,25 +3,23 @@ package log
 import (
     "github.com/stretchr/testify/assert"
     "os"
+    "sync"
     "testing"
     "time"
     "unsafe"
 )
 
 const (
-    path = "./log.test"
-    msg  = "hello"
+    msg = "hello"
 )
 
 var (
-    now             = time.Now().Local().Format("Jan-2-2006")
-    infoFilePath    = path + "-INFO-" + now
-    errorFilePath   = path + "-ERROR-" + now
-    warningFilePath = path + "-WARNING-" + now
+    now = time.Now().Local().Format("Jan-2-2006")
 )
 
 func TestCreateFileIfNotExist(t *testing.T) {
-    // t.Parallel()
+    t.Parallel()
+    path := "./TestCreateFileIfNotExist"
     file, err := createFileIfNotExist(path)
     assert.NoError(t, err)
     file.Close()
@@ -30,12 +28,17 @@ func TestCreateFileIfNotExist(t *testing.T) {
 
 func TestFormatFileName(t *testing.T) {
     t.Parallel()
+    path := "./TestFormatFileName"
     formatedFileName := formatFileName(path, "TEST")
     assert.Equal(t, path+"-TEST-"+now, formatedFileName)
 }
 
 func TestNewFile(t *testing.T) {
-    // t.Parallel()
+    t.Parallel()
+    path := "./TestNewFile"
+    infoFilePath := path + "-INFO-" + now
+    errorFilePath := path + "-ERROR-" + now
+    warningFilePath := path + "-WARNING-" + now
     // testing if the NewFile method creates a file with the pattern
     // /PATH/TO/FILE-INFO-Month-Day-Year
     // then if PASS remove the file
@@ -62,13 +65,17 @@ func TestNewFile(t *testing.T) {
 }
 
 func TestNewLogFactory(t *testing.T) {
-    // t.Parallel()
+    t.Parallel()
+    path := "./TestNewLogFactory"
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
     const (
         msg = "hello"
     )
 
+    infoFilePath := path + "-INFO-" + now
+    errorFilePath := path + "-ERROR-" + now
+    warningFilePath := path + "-WARNING-" + now
     // testing if the info log file is not empty after a send msg
     // then if PASS, delete the file
     logFactory.Info(msg)
@@ -86,7 +93,11 @@ func TestNewLogFactory(t *testing.T) {
 }
 
 func TestCronJobRun(t *testing.T) {
-    // t.Parallel()
+    t.Parallel()
+    path := "./TestCronJobRun"
+    infoFilePath := path + "-INFO-" + now
+    errorFilePath := path + "-ERROR-" + now
+    warningFilePath := path + "-WARNING-" + now
 
     logFactory, err := NewLogFactory(path)
     assert.NoError(t, err)
@@ -111,6 +122,39 @@ func TestCronJobRun(t *testing.T) {
     logFactory.Error(msg)
     logFactory.Warning(msg)
 
+    assertFileIsNotEmpty(t, infoFilePath)
+    assertFileIsNotEmpty(t, errorFilePath)
+    assertFileIsNotEmpty(t, warningFilePath)
+}
+
+func TestMultipleGoRoutinesWritting(t *testing.T) {
+    t.Parallel()
+    path := "./TestMultipleGoRoutinesWritting"
+    infoFilePath := path + "-INFO-" + now
+    errorFilePath := path + "-ERROR-" + now
+    warningFilePath := path + "-WARNING-" + now
+
+    logFactory, err := NewLogFactory(path)
+    assert.NoError(t, err)
+    var wg sync.WaitGroup
+    for i := 0; i < 20; i++ {
+        wg.Add(1)
+        go func() {
+            logFactory.Info(msg)
+            wg.Done()
+        }()
+        wg.Add(1)
+        go func() {
+            logFactory.Error(msg)
+            wg.Done()
+        }()
+        wg.Add(1)
+        go func() {
+            logFactory.Warning(msg)
+            wg.Done()
+        }()
+    }
+    wg.Wait()
     assertFileIsNotEmpty(t, infoFilePath)
     assertFileIsNotEmpty(t, errorFilePath)
     assertFileIsNotEmpty(t, warningFilePath)
