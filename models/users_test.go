@@ -2,6 +2,7 @@ package models
 
 import (
     "github.com/stretchr/testify/assert"
+    "sync"
     "testing"
 )
 
@@ -46,4 +47,24 @@ func TestFindAllUsers(t *testing.T) {
     assert.NoError(t, err)
     assert.NotEmpty(t, users)
     assert.Equal(t, 4, len(users))
+}
+
+func TestUserAlreadyExist(t *testing.T) {
+    t.Parallel()
+    var wg sync.WaitGroup
+    for index, uname := range u_usernames {
+        wg.Add(1)
+        go func(username, email string) {
+            exist := UserExist(username, email)
+            assert.True(t, exist)
+            wg.Done()
+        }(uname, u_emails[index])
+        wg.Add(1)
+        go func(username, email string) {
+            exist := UserExist(username, email)
+            assert.True(t, exist)
+            wg.Done()
+        }(uname, u_emails[len(u_usernames)-1-index])
+    }
+    wg.Wait()
 }

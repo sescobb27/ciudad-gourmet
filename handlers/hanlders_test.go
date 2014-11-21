@@ -62,18 +62,14 @@ func TestUserSignUp(t *testing.T) {
     req, err := http.NewRequest(
         "POST",
         "/signup",
-        strings.NewReader("username=sescob27&email=sescob27@eafit.edu.co&lastname=Escobar&name=Simon&password=12345"),
+        strings.NewReader("username=test&email=test27@eafit.edu.co&lastname=Escobar&name=Simon&password=12345"),
     )
+    assert.NoError(t, err)
     ps := httprouter.Params{}
     req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-    assert.NoError(t, err)
     SignUp_Handler(recorder, req, ps)
     assert.Equal(t, 200, recorder.Code, recorder.Body.String())
-    username := "sescob27"
-    user, err := models.FindUserByUsername(&username)
-    assert.NoError(t, err)
-    assert.Equal(t, "sescob27", user.Username)
-    assert.Equal(t, "sescob27@eafit.edu.co", user.Email)
+    assert.True(t, models.UserExist("test", "test27@eafit.edu.co"))
 }
 
 func TestUserSignIn(t *testing.T) {

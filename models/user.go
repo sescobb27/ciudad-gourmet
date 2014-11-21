@@ -1,6 +1,7 @@
 package models
 
 import (
+    stdsql "database/sql"
     "errors"
     sql "github.com/sescobb27/ciudad-gourmet/db"
     "github.com/sescobb27/ciudad-gourmet/helpers"
@@ -25,21 +26,28 @@ type User struct {
 }
 
 func (u *User) Create() error {
-    query := `INSERT INTO users(
+    existChan := make(chan bool)
+    go func() {
+        existChan <- UserExist(u.Username, u.Email)
+    }()
+    var err error
+    if exist := <-existChan; !exist {
+        query := `INSERT INTO users(
             created_at, email, lastname, name, password_hash, rate, username)
             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-
-    err := sql.DB.QueryRow(
-        query,
-        u.CreatedAt.Format(time.RFC850),
-        u.Email,
-        u.LastName,
-        u.Name,
-        u.PasswordHash,
-        u.Rate,
-        u.Username,
-    ).Scan(&u.Id)
-
+        err = sql.DB.QueryRow(
+            query,
+            u.CreatedAt.Format(time.RFC850),
+            u.Email,
+            u.LastName,
+            u.Name,
+            u.PasswordHash,
+            u.Rate,
+            u.Username,
+        ).Scan(&u.Id)
+    } else {
+        err = errors.New("User already exist")
+    }
     return err
 }
 
@@ -57,6 +65,15 @@ func (u *User) IsValid() bool {
         u.Errors = append(u.Errors, "Invalid last name")
     }
     return len(u.Errors) == 0
+}
+
+func UserExist(username, email string) bool {
+    query := `SELECT id FROM users  AS u
+            WHERE LOWER(u.email) = LOWER($1) OR
+            LOWER(u.username) = LOWER($2) LIMIT 1`
+    var id stdsql.NullInt64
+    sql.DB.QueryRow(query, email, username).Scan(&id)
+    return id.Int64 != 0
 }
 
 func FindUserByEmail(email *string) (*User, error) {
@@ -127,6 +144,7 @@ func FindAllUsers() ([]*User, error) {
     if err != nil {
         return nil, err
     }
+    defer user_rows.Close()
 
     users := []*User{}
     if user_rows == nil {
