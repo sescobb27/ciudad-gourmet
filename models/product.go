@@ -96,17 +96,16 @@ func FindProductsByName(name string) ([]*Product, error) {
 
     product_rows, err := sql.DB.Query(query, name)
 
+    products := []*Product{}
     if err != nil {
-        return nil, err
+        return products, err
     }
-
-    if product_rows == nil {
-        return nil, errors.New("No Products Named " + name)
-    }
-
     defer product_rows.Close()
 
-    products := []*Product{}
+    if product_rows == nil {
+        return products, errors.New("No Products Named " + name)
+    }
+
     for product_rows.Next() {
         product := new(Product)
         err = product_rows.Scan(
@@ -138,11 +137,11 @@ func FindProductsByCategory(category string) ([]*Product, error) {
 
     product_rows, err := sql.DB.Query(query, category)
 
+    products := []*Product{}
     if err != nil {
-        return nil, err
+        return products, err
     }
 
-    products := []*Product{}
     if product_rows == nil {
         return products, errors.New("No Products For Category: " + category)
     }
@@ -189,11 +188,11 @@ func FindProductsByUserName(username string) ([]*Product, error) {
 
     product_rows, err := sql.DB.Query(query, username)
 
+    products := []*Product{}
     if err != nil {
-        return nil, err
+        return products, err
     }
 
-    products := []*Product{}
     if product_rows == nil {
         return products, errors.New("No Products For User: " + username)
     }

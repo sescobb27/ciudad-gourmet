@@ -141,12 +141,12 @@ func FindAllUsers() ([]*User, error) {
 
     user_rows, err := sql.DB.Query(query)
 
+    users := []*User{}
     if err != nil {
-        return nil, err
+        return users, err
     }
     defer user_rows.Close()
 
-    users := []*User{}
     if user_rows == nil {
         return users, nil
     }
