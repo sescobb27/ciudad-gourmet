@@ -108,3 +108,39 @@ func TestSessionDestroy_2DifferentRequest(t *testing.T) {
     }(recorder, req)
     ws.Wait()
 }
+
+func TestMultipleRoutinesWithDefaultManager(t *testing.T) {
+    t.Parallel()
+    var ws sync.WaitGroup
+    for i := 0; i < 50; i++ {
+        done := make(chan signal)
+        recorder := httptest.NewRecorder()
+        req, err := http.NewRequest(
+            "POST",
+            "/signin",
+            strings.NewReader("username=sescob&password=qwerty"),
+        )
+        assert.NoError(t, err)
+        ws.Add(1)
+        go func(rw http.ResponseWriter, r *http.Request) {
+            sessionStore, err := Manager.SessionStart(rw, r)
+            assert.NoError(t, err)
+            assert.NotNil(t, Manager.provider.SessionRead(sessionStore.SessionID()))
+            done <- signal{}
+            ws.Done()
+        }(recorder, req)
+        ws.Add(1)
+        go func(rw http.ResponseWriter, r *http.Request) {
+            <-done
+            err := Manager.SessionDestroy(rw, r)
+            assert.NoError(t, err)
+            cookie, err := r.Cookie("cg")
+            assert.NoError(t, err)
+            assert.NotNil(t, cookie)
+            sessionId := cookie.Value
+            assert.Nil(t, Manager.provider.SessionRead(sessionId))
+            ws.Done()
+        }(recorder, req)
+    }
+    ws.Wait()
+}

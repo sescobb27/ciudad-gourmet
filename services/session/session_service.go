@@ -112,3 +112,14 @@ func (cManager *CookieManager) SessionDestroy(res http.ResponseWriter, req *http
     cManager.semaphore <- signal{}
     return nil
 }
+
+var Manager *CookieManager
+
+func init() {
+    Manager = NewCookieManager(
+        "cg",
+        time.Now().AddDate(1, 0, 0), // expires 1 year after this one
+        16,
+        NewSessionProvider(),
+    )
+}
