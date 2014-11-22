@@ -19,24 +19,25 @@ func (l *Location) Create() (bool, error) {
     return true, nil
 }
 
-func GetLocations() []*Location {
+func GetLocations() ([]*Location, error) {
     query := `SELECT name FROM locations`
 
     location_rows, err := sql.DB.Query(query)
+    locations := []*Location{}
     if err != nil {
-        panic(err)
+        return locations, err
     }
+    defer location_rows.Close()
 
     if location_rows == nil {
-        panic(location_rows)
+        return locations, nil
     }
 
-    locations := []*Location{}
     for location_rows.Next() {
         location := Location{}
         err = location_rows.Scan(&location.Name)
         locations = append(locations, &location)
     }
 
-    return locations
+    return locations, nil
 }

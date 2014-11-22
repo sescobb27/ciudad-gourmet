@@ -114,13 +114,13 @@ func TestUserNamesValidator_Invalid(t *testing.T) {
 }
 
 func TestUniqueNamesValidator(t *testing.T) {
-
+    t.Skip()
 }
 
 func TestProductNameValidator(t *testing.T) {
-
+    t.Skip()
 }
 
 func TestTextOnlyValidator(t *testing.T) {
-
+    t.Skip()
 }

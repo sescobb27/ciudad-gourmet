@@ -63,7 +63,7 @@ var (
 )
 
 func insert_Categories() []*models.Category {
-    categories := models.GetCategories()
+    categories, _ := models.GetCategories()
     if len(categories) == 0 {
         for i, category := range categoriesSeed {
             c := &models.Category{
@@ -78,7 +78,7 @@ func insert_Categories() []*models.Category {
 }
 
 func insert_Locations() []*models.Location {
-    locations := models.GetLocations()
+    locations, _ := models.GetLocations()
     if len(locations) == 0 {
         for _, location := range locationsSeed {
             l := &models.Location{Name: location}

@@ -24,23 +24,24 @@ func (c *Category) Create() (bool, error) {
     return true, nil
 }
 
-func GetCategories() []*Category {
+func GetCategories() ([]*Category, error) {
     query := `SELECT name FROM categories`
     categories_rows, err := sql.DB.Query(query)
+    categories := []*Category{}
     if err != nil {
-        panic(err)
+        return categories, err
     }
+    defer categories_rows.Close()
 
     if categories_rows == nil {
-        panic(categories_rows)
+        return categories, nil
     }
 
-    categories := []*Category{}
     for categories_rows.Next() {
         category := Category{}
         err = categories_rows.Scan(&category.Name)
         categories = append(categories, &category)
     }
 
-    return categories
+    return categories, nil
 }

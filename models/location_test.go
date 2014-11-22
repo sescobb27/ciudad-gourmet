@@ -6,6 +6,7 @@ import (
 )
 
 func TestGetLocations(t *testing.T) {
-    locations := GetLocations()
+    locations, err := GetLocations()
+    assert.NoError(t, err)
     assert.NotEmpty(t, locations)
 }

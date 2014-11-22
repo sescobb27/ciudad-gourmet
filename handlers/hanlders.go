@@ -117,13 +117,19 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request, _ httprouter
     logFactory.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
-    categories := []*models.Category{}
-    categories = append(categories, models.GetCategories()...)
+    categories, err := models.GetCategories()
+    if err != nil {
+        logFactory.Error(err.Error())
+        http.Error(res, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
     json_categories, err := json.Marshal(categories)
 
     if err != nil {
         logFactory.Error(err.Error())
-        panic(err)
+        http.Error(res, err.Error(), http.StatusInternalServerError)
+        return
     }
 
     res.Write(json_categories)
@@ -133,13 +139,19 @@ func Locations_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.
     logFactory.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
-    locations := []*models.Location{}
-    locations = append(locations, models.GetLocations()...)
+    locations, err := models.GetLocations()
+    if err != nil {
+        logFactory.Error(err.Error())
+        http.Error(res, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
     json_locations, err := json.Marshal(locations)
 
     if err != nil {
         logFactory.Error(err.Error())
-        panic(err)
+        http.Error(res, err.Error(), http.StatusInternalServerError)
+        return
     }
 
     res.Write(json_locations)

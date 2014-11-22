@@ -6,6 +6,7 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-    categories := GetCategories()
+    categories, err := GetCategories()
+    assert.NoError(t, err)
     assert.NotEmpty(t, categories)
 }
