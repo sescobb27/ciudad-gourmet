@@ -29,7 +29,9 @@ func Index_Handler(res http.ResponseWriter, req *http.Request, params httprouter
     res.Header().Set("Content-Type", "text/html")
     file, err := ioutil.ReadFile("resources/index.html")
     if err != nil {
-        panic(err)
+        logFactory.Error(err.Error())
+        http.Error(res, err.Error(), http.StatusNotFound)
+        return
     }
     res.Write(file)
 }
@@ -202,12 +204,14 @@ func FindProducts_Handler(res http.ResponseWriter, req *http.Request, params htt
     }
 
     if err != nil {
+        logFactory.Error(err.Error())
         http.Error(res, err.Error(), http.StatusNotFound)
         return
     }
 
     products_json, err := json.Marshal(products)
     if err != nil {
+        logFactory.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }
