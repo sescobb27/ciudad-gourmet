@@ -8,7 +8,7 @@ all: install
 	$(GOBUILD) -v -p=$(GOMAXPROCS) -race ./...
 	$(GOBUILD) -ldflags "-w" -o ciudad-gourmet
 
-.PHONY: test open install test-race clean
+.PHONY: test open install test-race clean rsa
 
 test:
 	./ciudad-gourmet -seed
@@ -26,6 +26,10 @@ test-race:
 clean:
 	rm -rf ciudad-gourmet.log-*
 	rm -rf handlers/ciudad-gourmet.log-*
+
+rsa:
+	openssl genrsa -out cg.rsa 4096
+	openssl rsa -in cg.rsa -pubout > cg.rsa.pub
 
 
 open:
