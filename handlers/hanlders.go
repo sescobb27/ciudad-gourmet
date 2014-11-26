@@ -6,6 +6,7 @@ import (
     "github.com/julienschmidt/httprouter"
     "github.com/sescobb27/ciudad-gourmet/models"
     "github.com/sescobb27/ciudad-gourmet/services/log"
+    "github.com/sescobb27/ciudad-gourmet/services/session"
     "golang.org/x/crypto/bcrypt"
     "io/ioutil"
     "net/http"
@@ -43,6 +44,25 @@ func formatReq(req *http.Request) string {
 func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     username := req.PostFormValue("username")
     password := req.PostFormValue("password")
+    logFactory.Info(formatReq(req))
+    sessionStore, err := session.Manager.SessionStart(res, req)
+    if err != nil {
+        logFactory.Error(err.Error())
+    } else {
+        if userSession := sessionStore.Get("user"); userSession != nil {
+            var user *models.User
+            var u_password string
+            user = userSession.(*models.User)
+            u_password = user.PasswordHash
+            err = bcrypt.CompareHashAndPassword(
+                []byte(u_password),
+                []byte(password),
+            )
+            if err == nil && username == user.Username {
+                return
+            }
+        }
+    }
     user, err := models.FindUserByUsername(&username)
     if err != nil {
         http.Error(res, err.Error(), http.StatusNotFound)
@@ -97,6 +117,13 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
             http.Error(res, err.Error(), http.StatusBadRequest)
             logFactory.Error(err.Error())
             return
+        }
+        var sessionStore session.SessionStore
+        sessionStore, err = session.Manager.SessionStart(res, req)
+        if err != nil {
+            logFactory.Error(err.Error())
+        } else {
+            sessionStore.Set("user", user)
         }
     } else {
         json_err, err := json.Marshal(user.Errors)

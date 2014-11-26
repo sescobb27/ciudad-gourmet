@@ -50,17 +50,7 @@ func (cManager *CookieManager) SessionStart(res http.ResponseWriter, req *http.R
         if err != nil {
             return nil, err
         }
-
-        if cookie.Expires.Before(time.Now()) {
-            cManager.provider.SessionDestroy(session_id)
-            session_id, err = cManager.genSessionId()
-            if err != nil {
-                return nil, err
-            }
-        } else {
-            sessionStore = cManager.provider.SessionRead(session_id)
-        }
-
+        sessionStore = cManager.provider.SessionRead(session_id)
         if sessionStore == nil {
             sessionStore = cManager.provider.SessionStore(session_id)
             cookie = cManager.genCookie(session_id)
