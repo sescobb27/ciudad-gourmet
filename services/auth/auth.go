@@ -54,7 +54,9 @@ func MakeToken(user *models.User) (string, error) {
     return tokenString, nil
 }
 
-// VerifyHeader checks for the exsistence of a Token in the Request Header
+// GetUserFromToken checks for the exsistence of a Token in the Request Header,
+// then if there is no error and the token is valid we get the tokenString
+// which is our in memory sessionId and try to retrieve us a user from there
 func GetUserFromToken(req *http.Request) (*models.User, error) {
     token, err := jwt.ParseFromRequest(req, func(token *jwt.Token) (interface{}, error) {
         return publicKey, nil
