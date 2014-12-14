@@ -136,6 +136,25 @@ func FindUserByUsername(username *string) (*User, error) {
     return user, nil
 }
 
+func FindUserById(id int64) (*User, error) {
+    query := `SELECT id, email, username, name, lastname, rate FROM users  AS u
+            WHERE u.id = $1 LIMIT 1`
+    user_row := sql.DB.QueryRow(query, id)
+    if user_row == nil {
+        return nil, errors.New("No User With That Id")
+    }
+    user := &User{}
+    user_row.Scan(
+        &user.Id,
+        &user.Email,
+        &user.Username,
+        &user.Name,
+        &user.LastName,
+        &user.Rate,
+    )
+    return user, nil
+}
+
 func FindAllUsers() ([]*User, error) {
     query := `SELECT id, email, username, name, lastname, rate FROM users`
 

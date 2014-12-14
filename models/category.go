@@ -25,7 +25,7 @@ func (c *Category) Create() (bool, error) {
 }
 
 func GetCategories() ([]*Category, error) {
-    query := `SELECT name FROM categories`
+    query := `SELECT id, name FROM categories`
     categories_rows, err := sql.DB.Query(query)
     categories := []*Category{}
     if err != nil {
@@ -39,7 +39,10 @@ func GetCategories() ([]*Category, error) {
 
     for categories_rows.Next() {
         category := Category{}
-        err = categories_rows.Scan(&category.Name)
+        err = categories_rows.Scan(
+            &category.Id,
+            &category.Name,
+        )
         categories = append(categories, &category)
     }
 

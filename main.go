@@ -73,5 +73,11 @@ func main() {
         http.StripPrefix("/catalog/",
             http.FileServer(http.Dir("resources/catalog"))))
 
+    go func(router *httprouter.Router) {
+        err := http.ListenAndServeTLS(":3001", "cert.pem", "key.pem", router)
+        if err != nil {
+            panic(err)
+        }
+    }(router)
     http.ListenAndServe(":3000", router)
 }

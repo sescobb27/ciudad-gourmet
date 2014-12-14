@@ -6,21 +6,10 @@ import (
     "net/http"
     "sync"
     "testing"
+    "time"
 )
 
 var (
-    u_names = []string{
-        "Simon",
-        "Edgardo",
-        "Juan",
-        "Camilo",
-    }
-    u_last_names = []string{
-        "Escobar",
-        "Sierra",
-        "Norenia",
-        "Mejia",
-    }
     u_usernames = []string{
         "sescob",
         "easierra",
@@ -42,8 +31,6 @@ func makeUsers() []*models.User {
             Id:       int64(i),
             Username: u_usernames[i%4],
             Email:    u_emails[i%4],
-            LastName: u_last_names[i%4],
-            Name:     u_names[i%4],
         }
         users = append(users, u)
     }
@@ -83,7 +70,7 @@ func TestMakeToken(t *testing.T) {
     for i, user := range makeUsers() {
         wg.Add(1)
         go func(u *models.User, req *http.Request) {
-            token, err := MakeToken(u)
+            token, err := MakeToken(u, time.Now().AddDate(1, 0, 0))
             assert.NoError(t, err)
             req.Header.Set("Authorization", "BEARER "+token)
             userSession, err := GetUserFromToken(req)

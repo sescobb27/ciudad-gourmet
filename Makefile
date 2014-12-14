@@ -1,12 +1,11 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
-GOINSTALL=$(GOCMD) install
 
 
-all: install
-	$(GOBUILD) -v -p=$(GOMAXPROCS) -race ./...
-	$(GOBUILD) -ldflags "-w" -o ciudad-gourmet
+all:
+	$(GOBUILD) -i -p=$(GOMAXPROCS)
+	$(GOBUILD) -ldflags "-w" -v -p=$(GOMAXPROCS) ./...
 
 .PHONY: test open install test-race clean rsa
 
@@ -14,9 +13,6 @@ test:
 	./ciudad-gourmet -seed
 	$(GOTEST) -parallel=$(GOMAXPROCS) -v ./...
 	./ciudad-gourmet -restore
-
-install:
-	$(GOBUILD) -i -p=$(GOMAXPROCS)
 
 test-race:
 	./ciudad-gourmet -seed
