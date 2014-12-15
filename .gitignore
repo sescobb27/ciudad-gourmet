@@ -26,3 +26,4 @@ ciudad-gourmet.log*
 ciudad-gourmet
 *.rsa*
 *.pem
+Godeps/_workspace/*
