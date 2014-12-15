@@ -24,7 +24,7 @@ clean:
 	rm -rf handlers/ciudad-gourmet.log-*
 
 rsa:
-	openssl genrsa -out cg.rsa 4096
+	openssl genrsa -out cg.rsa 2048
 	openssl rsa -in cg.rsa -pubout > cg.rsa.pub
 
 
