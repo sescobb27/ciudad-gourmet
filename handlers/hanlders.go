@@ -14,23 +14,11 @@ import (
     "time"
 )
 
-var (
-    logFactory *log.LogFactory
-)
-
-func init() {
-    var err error
-    logFactory, err = log.NewLogFactory("./ciudad-gourmet.log")
-    if err != nil {
-        panic(err)
-    }
-}
-
 func Index_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     res.Header().Set("Content-Type", "text/html")
     file, err := ioutil.ReadFile("resources/index.html")
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusNotFound)
         return
     }
@@ -44,10 +32,10 @@ func formatReq(req *http.Request) string {
 func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
     username := req.PostFormValue("username")
     password := req.PostFormValue("password")
-    logFactory.Info(formatReq(req))
+    log.Log.Info(formatReq(req))
     sessionStore, err := session.Manager.SessionStart(res, req)
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
     } else {
         if userSession := sessionStore.Get("user"); userSession != nil {
             var user *models.User
@@ -66,7 +54,7 @@ func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httproute
     user, err := models.FindUserByUsername(&username)
     if err != nil {
         http.Error(res, err.Error(), http.StatusNotFound)
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         return
     }
     err = bcrypt.CompareHashAndPassword(
@@ -75,7 +63,7 @@ func SignIn_Handler(res http.ResponseWriter, req *http.Request, params httproute
     )
     if err != nil {
         http.Error(res, err.Error(), http.StatusNotFound)
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         return
     }
 }
@@ -88,7 +76,7 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
     name := req.PostFormValue("name")
     password := req.PostFormValue("password")
     timeNow := time.Now().Local()
-    logFactory.Info(formatReq(req))
+    log.Log.Info(formatReq(req))
 
     passwordHash, err := bcrypt.GenerateFromPassword(
         []byte(password),
@@ -97,7 +85,7 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
 
     if err != nil {
         http.Error(res, err.Error(), http.StatusBadRequest)
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         return
     }
 
@@ -115,13 +103,13 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
         err = user.Create()
         if err != nil {
             http.Error(res, err.Error(), http.StatusBadRequest)
-            logFactory.Error(err.Error())
+            log.Log.Error(err.Error())
             return
         }
         var sessionStore session.SessionStore
         sessionStore, err = session.Manager.SessionStart(res, req)
         if err != nil {
-            logFactory.Error(err.Error())
+            log.Log.Error(err.Error())
         } else {
             sessionStore.Set("user", user)
         }
@@ -129,7 +117,7 @@ func SignUp_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
         json_err, err := json.Marshal(user.Errors)
         if err != nil {
             http.Error(res, err.Error(), http.StatusInternalServerError)
-            logFactory.Error(err.Error())
+            log.Log.Error(err.Error())
             return
         }
         res.Header().Set("Content-Type", "application/json")
@@ -143,12 +131,12 @@ func SignOut_Handler(res http.ResponseWriter, req *http.Request, params httprout
 }
 
 func Categories_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-    logFactory.Info(formatReq(req))
+    log.Log.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
     categories, err := models.GetCategories()
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -156,7 +144,7 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request, _ httprouter
     json_categories, err := json.Marshal(categories)
 
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -165,12 +153,12 @@ func Categories_Handler(res http.ResponseWriter, req *http.Request, _ httprouter
 }
 
 func Locations_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-    logFactory.Info(formatReq(req))
+    log.Log.Info(formatReq(req))
 
     res.Header().Set("Content-Type", "application/json")
     locations, err := models.GetLocations()
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -178,7 +166,7 @@ func Locations_Handler(res http.ResponseWriter, req *http.Request, _ httprouter.
     json_locations, err := json.Marshal(locations)
 
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -231,14 +219,14 @@ func FindProducts_Handler(res http.ResponseWriter, req *http.Request, params htt
     }
 
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusNotFound)
         return
     }
 
     products_json, err := json.Marshal(products)
     if err != nil {
-        logFactory.Error(err.Error())
+        log.Log.Error(err.Error())
         http.Error(res, err.Error(), http.StatusInternalServerError)
         return
     }

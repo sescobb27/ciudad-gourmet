@@ -223,3 +223,15 @@ func NewErrorLog(file *os.File) ErrorLog {
         file:       file,
     }
 }
+
+var (
+    Log *LogFactory
+    err error
+)
+
+func init() {
+    Log, err = NewLogFactory("./ciudad-gourmet.log")
+    if err != nil {
+        panic(err)
+    }
+}
